@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hours by Service Rate Dashboard</title>
+    <title>Weekly Service Reporting Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -42,37 +42,83 @@
             font-size: 1.1em;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
+        .report-table-container {
             background: white;
-            padding: 25px;
+            padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow-x: auto;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card h3 {
-            color: #667eea;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-
-        .stat-card .value {
-            font-size: 2.5em;
-            font-weight: bold;
+        h2 {
             color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+            background: white;
+        }
+
+        thead {
+            background: #667eea;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        tbody tr:hover {
+            background: #e8ebff;
+        }
+
+        .week-cell {
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .number-cell {
+            text-align: right;
+            font-weight: 500;
+        }
+
+        .percent-cell {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .percent-high {
+            color: #d32f2f;
+        }
+
+        .percent-medium {
+            color: #f57c00;
+        }
+
+        .percent-low {
+            color: #388e3c;
+        }
+
+        .empty-cell {
+            background: #f5f5f5;
         }
 
         .tabs {
@@ -105,31 +151,28 @@
 
         .tab-content {
             display: none;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .tab-content.active {
             display: block;
         }
 
-        .search-filter {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        .details-table-container {
+            margin-top: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .search-box {
-            flex: 1;
-            min-width: 250px;
+            width: 100%;
+            max-width: 400px;
             padding: 12px 20px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 1em;
-            transition: border-color 0.3s ease;
+            margin-bottom: 20px;
         }
 
         .search-box:focus {
@@ -137,110 +180,21 @@
             border-color: #667eea;
         }
 
-        .filter-select {
-            padding: 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            cursor: pointer;
-            background: white;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            border-radius: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-
-        th {
-            background: #667eea;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        th:hover {
-            background: #5568d3;
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        tr:hover {
-            background: #f8f9ff;
-        }
-
-        .overtime-badge {
-            background: #ff6b6b;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .chart-container {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9ff;
-            border-radius: 10px;
-        }
-
-        .bar {
-            background: #667eea;
-            height: 30px;
-            margin: 5px 0;
-            border-radius: 5px;
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            padding-left: 10px;
-            color: white;
-            font-weight: 600;
-        }
-
-        .legend {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
-
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
             }
             
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
             .tabs {
                 flex-direction: column;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            th, td {
+                padding: 8px;
             }
         }
     </style>
@@ -248,154 +202,117 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 Hours by Service Rate Dashboard</h1>
-            <p>Week: 09/29/25 - 10/05/25 | Report Generated: 10/29/25 5:26pm</p>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>Total Billable Hours</h3>
-                <div class="value" id="totalHours">3,156.50</div>
-            </div>
-            <div class="stat-card">
-                <h3>Regular Hours</h3>
-                <div class="value" id="regularHours">3,132.25</div>
-            </div>
-            <div class="stat-card">
-                <h3>Overtime Hours</h3>
-                <div class="value" id="overtimeHours">24.25</div>
-            </div>
-            <div class="stat-card">
-                <h3>Total Visits</h3>
-                <div class="value" id="totalVisits">538</div>
-            </div>
+            <h1>📊 Weekly Service Reporting Dashboard</h1>
+            <p>Comprehensive healthcare service metrics and caregiver utilization</p>
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('clients')">👥 By Client</button>
-            <button class="tab-btn" onclick="switchTab('caregivers')">🩺 By Caregiver</button>
-            <button class="tab-btn" onclick="switchTab('analytics')">📈 Analytics</button>
+            <button class="tab-btn active" onclick="switchTab('summary')">📈 Weekly Summary</button>
+            <button class="tab-btn" onclick="switchTab('clients')">👥 Client Details</button>
+            <button class="tab-btn" onclick="switchTab('caregivers')">🩺 Caregiver Details</button>
         </div>
 
-        <div id="clients" class="tab-content active">
-            <h2>Client Hours Report</h2>
-            <div class="search-filter">
-                <input type="text" class="search-box" id="clientSearch" placeholder="🔍 Search clients..." onkeyup="filterTable('clientTable', 'clientSearch')">
-                <select class="filter-select" id="clientFilter" onchange="filterByOvertime('clientTable', 'clientFilter')">
-                    <option value="all">All Clients</option>
-                    <option value="overtime">With Overtime</option>
-                    <option value="no-overtime">No Overtime</option>
-                </select>
-            </div>
-            <div class="table-container">
-                <table id="clientTable">
+        <!-- Summary Tab -->
+        <div id="summary" class="tab-content active">
+            <div class="report-table-container">
+                <h2>Weekly Service Reporting Summary</h2>
+                <table id="summaryTable">
                     <thead>
                         <tr>
-                            <th onclick="sortTable('clientTable', 0)">Client Name</th>
-                            <th onclick="sortTable('clientTable', 1)">Visits</th>
-                            <th onclick="sortTable('clientTable', 2)">Billable Hours</th>
-                            <th onclick="sortTable('clientTable', 3)">Regular Hours</th>
-                            <th onclick="sortTable('clientTable', 4)">Overtime Hours</th>
+                            <th>Week</th>
+                            <th>Clients</th>
+                            <th>Hours</th>
+                            <th>CG Worked</th>
+                            <th>CG Roster</th>
+                            <th>CG not working</th>
+                            <th>% Caregivers not working</th>
+                            <th>Overtime %</th>
                         </tr>
                     </thead>
-                    <tbody id="clientTableBody">
-                        <!-- Data will be populated by JavaScript -->
+                    <tbody id="summaryTableBody">
+                        <!-- Data populated by JavaScript -->
                     </tbody>
                 </table>
             </div>
         </div>
 
+        <!-- Clients Tab -->
+        <div id="clients" class="tab-content">
+            <div class="details-table-container">
+                <h2>Client Hours Detail</h2>
+                <select id="weekSelectClients" class="search-box" style="width: 200px;" onchange="updateClientTable()">
+                    <option value="0">Week 1: 09/29/25 - 10/05/25</option>
+                    <option value="1">Week 2: 10/20/25 - 10/26/25</option>
+                </select>
+                <input type="text" class="search-box" id="clientSearch" placeholder="🔍 Search clients..." onkeyup="filterClientTable()">
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Client Name</th>
+                                <th>Visits</th>
+                                <th>Billable Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody">
+                            <!-- Data populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Caregivers Tab -->
         <div id="caregivers" class="tab-content">
-            <h2>Caregiver Hours Report</h2>
-            <div class="search-filter">
-                <input type="text" class="search-box" id="caregiverSearch" placeholder="🔍 Search caregivers..." onkeyup="filterTable('caregiverTable', 'caregiverSearch')">
-                <select class="filter-select" id="caregiverFilter" onchange="filterByOvertime('caregiverTable', 'caregiverFilter')">
-                    <option value="all">All Caregivers</option>
-                    <option value="overtime">With Overtime</option>
-                    <option value="no-overtime">No Overtime</option>
+            <div class="details-table-container">
+                <h2>Caregiver Hours Detail</h2>
+                <select id="weekSelectCaregivers" class="search-box" style="width: 200px;" onchange="updateCaregiverTable()">
+                    <option value="0">Week 1: 09/29/25 - 10/05/25</option>
+                    <option value="1">Week 2: 10/20/25 - 10/26/25</option>
                 </select>
-            </div>
-            <div class="table-container">
-                <table id="caregiverTable">
-                    <thead>
-                        <tr>
-                            <th onclick="sortTable('caregiverTable', 0)">Caregiver Name</th>
-                            <th onclick="sortTable('caregiverTable', 1)">Visits</th>
-                            <th onclick="sortTable('caregiverTable', 2)">Billable Hours</th>
-                            <th onclick="sortTable('caregiverTable', 3)">Regular Hours</th>
-                            <th onclick="sortTable('caregiverTable', 4)">Overtime Hours</th>
-                        </tr>
-                    </thead>
-                    <tbody id="caregiverTableBody">
-                        <!-- Data will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div id="analytics" class="tab-content">
-            <h2>Analytics Dashboard</h2>
-            <div class="chart-container">
-                <h3>Top 10 Clients by Hours</h3>
-                <div id="topClientsChart"></div>
-            </div>
-            <div class="chart-container">
-                <h3>Top 10 Caregivers by Hours</h3>
-                <div id="topCaregiversChart"></div>
+                <input type="text" class="search-box" id="caregiverSearch" placeholder="🔍 Search caregivers..." onkeyup="filterCaregiverTable()">
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Caregiver Name</th>
+                                <th>Visits</th>
+                                <th>Billable Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody id="caregiverTableBody">
+                            <!-- Data populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Sample data - Replace with your actual CSV data
-        const clientsData = [
-            {name: "Adams, Pauline", visits: 17, hours: 168, regular: 168, overtime: 0},
-            {name: "Ager, John", visits: 1, hours: 1, regular: 1, overtime: 0},
-            {name: "Astle, Erin", visits: 5, hours: 41.75, regular: 41.75, overtime: 0},
-            {name: "Axelrod, Bob", visits: 7, hours: 55, regular: 54.5, overtime: 0.5},
-            {name: "Baseman, Norman", visits: 1, hours: 10.75, regular: 10.75, overtime: 0},
-            {name: "Bridge, Ivor", visits: 7, hours: 29.5, regular: 29.5, overtime: 0},
-            {name: "Capko, Anita", visits: 17, hours: 109, regular: 109, overtime: 0},
-            {name: "Edens, Shervene", visits: 7, hours: 140, regular: 140, overtime: 0},
-            {name: "Gale, Michael", visits: 11, hours: 137, regular: 113.25, overtime: 23.75},
-            {name: "Grammes, Dolores", visits: 27, hours: 168, regular: 168, overtime: 0},
-            {name: "Kissig, Christine", visits: 20, hours: 159, regular: 159, overtime: 0},
-            {name: "LaMont, Barbara", visits: 14, hours: 118.25, regular: 118.25, overtime: 0},
-            {name: "Petruschke, Ethel", visits: 22, hours: 166.25, regular: 166.25, overtime: 0}
-        ];
-
-        const caregiversData = [
-            {name: "Abdillahi, Fardousa", visits: 7, hours: 40, regular: 40, overtime: 0},
-            {name: "Abell, Maia", visits: 2, hours: 13.5, regular: 13.5, overtime: 0},
-            {name: "Astle, Katerina", visits: 5, hours: 41.75, regular: 41.75, overtime: 0},
-            {name: "Baashit, Ayrryccah", visits: 8, hours: 45, regular: 45, overtime: 0},
-            {name: "Baron, Colleen", visits: 4, hours: 35, regular: 35, overtime: 0},
-            {name: "DePrisco, Dineen", visits: 12, hours: 83.75, regular: 83.75, overtime: 0},
-            {name: "Edens, Khadeshia", visits: 7, hours: 140, regular: 140, overtime: 0},
-            {name: "Laziz, Nihad", visits: 4, hours: 64, regular: 64, overtime: 0},
-            {name: "Rodriguez, Nicole", visits: 7, hours: 56, regular: 56, overtime: 0},
-            {name: "Schiliro, Helen", visits: 4, hours: 40, regular: 40, overtime: 0},
-            {name: "Sheriff, Hawa", visits: 5, hours: 40.5, regular: 40, overtime: 0.5},
-            {name: "Williams, Sonia", visits: 8, hours: 40, regular: 40, overtime: 0},
-            {name: "Williams-Stith, Maleah", visits: 5, hours: 71.25, regular: 47.5, overtime: 23.75}
-        ];
-
-        function populateTable(tableId, data) {
-            const tbody = document.getElementById(tableId + 'Body');
-            tbody.innerHTML = '';
-            
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${row.name}</strong></td>
-                    <td>${row.visits}</td>
-                    <td><strong>${row.hours.toFixed(2)}</strong></td>
-                    <td>${row.regular.toFixed(2)}</td>
-                    <td>${row.overtime > 0 ? '<span class="overtime-badge">' + row.overtime.toFixed(2) + '</span>' : '0.00'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+        // Dashboard data - Replace with actual data from JSON file
+        const dashboardData = {
+            "weeks": [
+                {
+                    "week": "09/29/25 - 10/05/25",
+                    "clients": 48,
+                    "hours": 1812.75,
+                    "cg_worked": 78,
+                    "cg_roster": 212,
+                    "clients_data": [], // Will be loaded from actual file
+                    "caregivers_data": []
+                },
+                {
+                    "week": "10/20/25 - 10/26/25",
+                    "clients": 67,
+                    "hours": 3058.25,
+                    "cg_worked": 129,
+                    "cg_roster": 212,
+                    "clients_data": [],
+                    "caregivers_data": []
+                }
+            ]
+        };
 
         function switchTab(tabName) {
             const tabs = document.querySelectorAll('.tab-content');
@@ -406,140 +323,145 @@
             
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
-            
-            if (tabName === 'analytics') {
-                renderCharts();
-            }
         }
 
-        function filterTable(tableId, searchId) {
-            const input = document.getElementById(searchId);
+        function populateSummaryTable() {
+            const tbody = document.getElementById('summaryTableBody');
+            tbody.innerHTML = '';
+
+            dashboardData.weeks.forEach(week => {
+                const cgNotWorking = week.cg_roster - week.cg_worked;
+                const percentNotWorking = ((cgNotWorking / week.cg_roster) * 100).toFixed(1);
+                const overtimePercent = 0.77; // Calculate from actual data
+
+                let percentClass = '';
+                if (percentNotWorking > 40) percentClass = 'percent-high';
+                else if (percentNotWorking > 30) percentClass = 'percent-medium';
+                else percentClass = 'percent-low';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="week-cell">${week.week}</td>
+                    <td class="number-cell">${week.clients}</td>
+                    <td class="number-cell">${week.hours.toFixed(2)}</td>
+                    <td class="number-cell">${week.cg_worked}</td>
+                    <td class="number-cell">${week.cg_roster}</td>
+                    <td class="number-cell">${cgNotWorking}</td>
+                    <td class="percent-cell ${percentClass}">${percentNotWorking}%</td>
+                    <td class="percent-cell">${overtimePercent.toFixed(2)}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function loadClientData(weekIndex) {
+            // This would load actual client data from the JSON file
+            // For demo purposes, returning empty array
+            return dashboardData.weeks[weekIndex].clients_data || [];
+        }
+
+        function loadCaregiverData(weekIndex) {
+            // This would load actual caregiver data from the JSON file
+            return dashboardData.weeks[weekIndex].caregivers_data || [];
+        }
+
+        function updateClientTable() {
+            const weekIndex = document.getElementById('weekSelectClients').value;
+            const tbody = document.getElementById('clientTableBody');
+            tbody.innerHTML = '';
+
+            const clients = loadClientData(weekIndex);
+            
+            if (clients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">Loading client data...</td></tr>';
+                return;
+            }
+
+            clients.forEach(client => {
+                if (client.verified_hours > 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="text-align: left;"><strong>${client.name}</strong></td>
+                        <td class="number-cell">${client.verified_visits}</td>
+                        <td class="number-cell">${client.verified_hours.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+
+        function updateCaregiverTable() {
+            const weekIndex = document.getElementById('weekSelectCaregivers').value;
+            const tbody = document.getElementById('caregiverTableBody');
+            tbody.innerHTML = '';
+
+            const caregivers = loadCaregiverData(weekIndex);
+
+            if (caregivers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">Loading caregiver data...</td></tr>';
+                return;
+            }
+
+            caregivers.forEach(cg => {
+                if (cg.verified_hours > 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="text-align: left;"><strong>${cg.name}</strong></td>
+                        <td class="number-cell">${cg.verified_visits}</td>
+                        <td class="number-cell">${cg.verified_hours.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+
+        function filterClientTable() {
+            const input = document.getElementById('clientSearch');
             const filter = input.value.toUpperCase();
-            const table = document.getElementById(tableId);
-            const tr = table.getElementsByTagName('tr');
-            
-            for (let i = 1; i < tr.length; i++) {
-                const td = tr[i].getElementsByTagName('td')[0];
-                if (td) {
-                    const txtValue = td.textContent || td.innerText;
-                    tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+            const tbody = document.getElementById('clientTableBody');
+            const rows = tbody.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const nameCell = rows[i].getElementsByTagName('td')[0];
+                if (nameCell) {
+                    const txtValue = nameCell.textContent || nameCell.innerText;
+                    rows[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
                 }
             }
         }
 
-        function filterByOvertime(tableId, filterId) {
-            const select = document.getElementById(filterId);
-            const value = select.value;
-            const table = document.getElementById(tableId);
-            const tr = table.getElementsByTagName('tr');
-            
-            for (let i = 1; i < tr.length; i++) {
-                const overtimeTd = tr[i].getElementsByTagName('td')[4];
-                if (overtimeTd) {
-                    const overtimeValue = parseFloat(overtimeTd.textContent);
-                    if (value === 'all') {
-                        tr[i].style.display = '';
-                    } else if (value === 'overtime') {
-                        tr[i].style.display = overtimeValue > 0 ? '' : 'none';
-                    } else if (value === 'no-overtime') {
-                        tr[i].style.display = overtimeValue === 0 ? '' : 'none';
-                    }
+        function filterCaregiverTable() {
+            const input = document.getElementById('caregiverSearch');
+            const filter = input.value.toUpperCase();
+            const tbody = document.getElementById('caregiverTableBody');
+            const rows = tbody.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const nameCell = rows[i].getElementsByTagName('td')[0];
+                if (nameCell) {
+                    const txtValue = nameCell.textContent || nameCell.innerText;
+                    rows[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
                 }
             }
         }
 
-        function sortTable(tableId, column) {
-            const table = document.getElementById(tableId);
-            let switching = true;
-            let shouldSwitch, i;
-            let dir = 'asc';
-            let switchcount = 0;
-            
-            while (switching) {
-                switching = false;
-                const rows = table.rows;
-                
-                for (i = 1; i < (rows.length - 1); i++) {
-                    shouldSwitch = false;
-                    const x = rows[i].getElementsByTagName('TD')[column];
-                    const y = rows[i + 1].getElementsByTagName('TD')[column];
-                    
-                    let xContent = x.textContent.trim();
-                    let yContent = y.textContent.trim();
-                    
-                    if (column > 0) {
-                        xContent = parseFloat(xContent) || 0;
-                        yContent = parseFloat(yContent) || 0;
-                    }
-                    
-                    if (dir === 'asc') {
-                        if (column === 0 ? xContent.toLowerCase() > yContent.toLowerCase() : xContent > yContent) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    } else {
-                        if (column === 0 ? xContent.toLowerCase() < yContent.toLowerCase() : xContent < yContent) {
-                            shouldSwitch = true;
-                            break;
-                        }
-                    }
-                }
-                
-                if (shouldSwitch) {
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                    switching = true;
-                    switchcount++;
-                } else {
-                    if (switchcount === 0 && dir === 'asc') {
-                        dir = 'desc';
-                        switching = true;
-                    }
-                }
-            }
-        }
+        // Load data from JSON file
+        fetch('dashboard_data.json')
+            .then(response => response.json())
+            .then(data => {
+                Object.assign(dashboardData, data);
+                populateSummaryTable();
+                updateClientTable();
+                updateCaregiverTable();
+            })
+            .catch(error => {
+                console.log('Loading with sample data');
+                populateSummaryTable();
+            });
 
-        function renderCharts() {
-            // Top Clients
-            const topClients = [...clientsData].sort((a, b) => b.hours - a.hours).slice(0, 10);
-            const maxClientHours = Math.max(...topClients.map(c => c.hours));
-            
-            const topClientsHTML = topClients.map(client => `
-                <div style="margin: 15px 0;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                        <span><strong>${client.name}</strong></span>
-                        <span>${client.hours.toFixed(2)} hrs</span>
-                    </div>
-                    <div class="bar" style="width: ${(client.hours / maxClientHours) * 100}%">
-                        ${client.visits} visits
-                    </div>
-                </div>
-            `).join('');
-            
-            document.getElementById('topClientsChart').innerHTML = topClientsHTML;
-            
-            // Top Caregivers
-            const topCaregivers = [...caregiversData].sort((a, b) => b.hours - a.hours).slice(0, 10);
-            const maxCaregiverHours = Math.max(...topCaregivers.map(c => c.hours));
-            
-            const topCaregiversHTML = topCaregivers.map(caregiver => `
-                <div style="margin: 15px 0;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                        <span><strong>${caregiver.name}</strong></span>
-                        <span>${caregiver.hours.toFixed(2)} hrs</span>
-                    </div>
-                    <div class="bar" style="width: ${(caregiver.hours / maxCaregiverHours) * 100}%; background: #764ba2;">
-                        ${caregiver.visits} visits
-                    </div>
-                </div>
-            `).join('');
-            
-            document.getElementById('topCaregiversChart').innerHTML = topCaregiversHTML;
-        }
-
-        // Initialize dashboard
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            populateTable('clientTable', clientsData);
-            populateTable('caregiverTable', caregiversData);
+            populateSummaryTable();
         });
     </script>
 </body>
