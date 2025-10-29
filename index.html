@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solvo Global - Supervisor Compensation Calculator</title>
+    <meta name="description" content="Calculate your monthly variable compensation as a Solvo Global supervisor. Unofficial calculator based on official formulas.">
+    <meta name="keywords" content="Solvo Global, compensation calculator, supervisor, variable compensation, KPI, CSAT, attrition">
+    <meta name="author" content="Sebastián Belalcázar">
+
+    <!-- Open Graph tags for sharing -->
+    <meta property="og:title" content="Solvo Global Supervisor Compensation Calculator">
+    <meta property="og:description" content="Calculate your monthly variable compensation based on KPIs, CSAT, and attrition performance.">
+    <meta property="og:type" content="website">
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --solvo-primary: #F09F54;
+            --solvo-primary-dark: #E08A39;
+            --solvo-secondary: #2c5aa0;
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-elevated: #30363d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #656d76;
+            --border-default: #30363d;
+            --border-muted: #21262d;
+            --border-subtle: #262c36;
+            --success: #238636;
+            --danger: #da3633;
+            --warning: #9e6a03;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+            --glass-bg: rgba(33, 38, 45, 0.8);
+            --glass-border: rgba(48, 54, 61, 0.6);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f6f8fa;
+            --bg-tertiary: #ffffff;
+            --bg-elevated: #f6f8fa;
+            --text-primary: #24292f;
+            --text-secondary: #57606a;
+            --text-muted: #6e7781;
+            --border-default: #d0d7de;
+            --border-muted: #d0d7de;
+            --border-subtle: #e1e5e9;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(208, 215, 222, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .disclaimer-banner {
+            background: rgba(218, 54, 51, 0.1);
+            border: 1px solid rgba(218, 54, 51, 0.3);
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem auto 2rem;
+            text-align: center;
+            font-weight: 500;
+            max-width: 1200px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 3rem 2rem;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border-default);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(240, 159, 84, 0.05) 0%, rgba(44, 90, 160, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+        }
+
+        .logo {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(135deg, var(--solvo-primary), var(--solvo-primary-dark));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .header .tagline {
+            font-size: 1rem;
+            color: var(--solvo-primary);
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .live-preview {
+            position: sticky;
+            top: 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            margin-bottom: 1rem;
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .live-preview.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .live-total {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--solvo-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .calculator-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-default);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .panel:hover {
+            border-color: var(--border-subtle);
+            box-shadow: var(--shadow-md);
+        }
+
+        .panel-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .panel-icon {
+            width: 2rem;
+            height: 2rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border: 1px solid var(--border-default);
+        }
+
+        .panel-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .panel-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--solvo-primary);
+            box-shadow: 0 0 0 3px rgba(240, 159, 84, 0.12);
+            background: var(--bg-elevated);
+        }
+
+        .form-input:hover:not(:focus) {
+            border-color: var(--border-subtle);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--solvo-primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--solvo-primary-dark);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            margin-top: 1rem;
+        }
+
+        .btn-success:hover {
+            background: #1f6f2e;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        .btn-danger:hover {
+            background: #c1292e;
+        }
+
+        .tenure-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-default);
+        }
+
+        .tenure-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .tenure-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 0.75rem;
+            align-items: end;
+            margin-bottom: 0.75rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-default);
+        }
+
+        .calculate-section {
+            grid-column: 1 / -1;
+            margin-top: 1.5rem;
+        }
+
+        .calculate-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .calculate-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+        }
+
+        .calculate-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .calculate-btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--solvo-primary), var(--solvo-primary-dark));
+            color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            letter-spacing: -0.01em;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .results {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-default);
+            margin-top: 2rem;
+            overflow: hidden;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .results-header {
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-default);
+            background: var(--glass-bg);
+        }
+
+        .results-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .results-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .total-card {
+            margin: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(240, 159, 84, 0.1) 0%, rgba(44, 90, 160, 0.05) 100%);
+            border: 1px solid rgba(240, 159, 84, 0.2);
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .total-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--solvo-primary), var(--solvo-primary-dark));
+        }
+
+        .total-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .total-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--solvo-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .total-note {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .result-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: all 0.15s ease;
+        }
+
+        .result-card:hover {
+            background: var(--bg-elevated);
+            border-color: var(--border-subtle);
+            transform: translateY(-1px);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .result-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-details {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .breakdown {
+            margin: 2rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .breakdown-header {
+            padding: 1rem 1.25rem;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-default);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border-muted);
+        }
+
+        .breakdown-row:last-child {
+            border-bottom: none;
+            background: var(--bg-elevated);
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+
+        .breakdown-label {
+            color: var(--text-secondary);
+        }
+
+        .breakdown-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .breakdown-value.penalty {
+            color: var(--danger);
+        }
+
+        .breakdown-value.bonus {
+            color: var(--success);
+        }
+
+        .breakdown-value.total {
+            color: var(--solvo-primary);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+            border-top: 1px solid var(--border-default);
+        }
+
+        .footer-tagline {
+            color: var(--solvo-primary);
+            font-weight: 500;
+            margin: 0.5rem 0;
+        }
+
+        .legal-footer {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .calculator-layout { grid-template-columns: 1fr; gap: 1rem; }
+            .header { padding: 2rem 1rem; }
+            .header h1 { font-size: 2rem; }
+            .tenure-item { grid-template-columns: 1fr; gap: 0.5rem; }
+            .total-amount { font-size: 2rem; }
+            .results-grid { grid-template-columns: 1fr; padding: 1rem; }
+            .breakdown { margin: 1rem; }
+            .theme-toggle { top: 1rem; right: 1rem; }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-subtle); }
+    </style>
+</head>
+<body data-theme="dark">
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
+
+    <div class="container">
+        <div class="disclaimer-banner" role="alert">
+            ⚠️ <strong>UNOFFICIAL CALCULATOR</strong> - This tool is created for estimation purposes only. 
+            Official compensation calculations must be verified with Solvo Global HR department.
+        </div>
+
+        <div class="live-preview" id="livePreview" aria-live="polite">
+            <div>Estimated Total Compensation</div>
+            <div class="live-total" id="liveTotal">$0 COP</div>
+            <small>Updating in real-time...</small>
+        </div>
+
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo">S</div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 1.25rem; color: var(--text-primary);">SOLVO GLOBAL</div>
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary);">Compensation Calculator (Unofficial)</div>
+                    </div>
+                </div>
+                <h1>Supervisor Variable Compensation</h1>
+                <p class="tagline">Bringing You a World of Talent</p>
+                <p>Calculate your monthly performance-based compensation with official Solvo formulas</p>
+            </div>
+        </header>
+
+        <main class="calculator-layout">
+            <section class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon">📊</div>
+                    <div class="panel-title">Performance Metrics</div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="form-label" for="kpiPerformance">KPI Performance (%)</label>
+                        <input type="number" class="form-input" id="kpiPerformance" min="0" max="100" value="92" step="0.1" placeholder="Enter your KPI percentage" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="attritionRate">Attrition Rate (%)</label>
+                        <input type="number" class="form-input" id="attritionRate" min="0" max="100" value="2.5" step="0.01" placeholder="Current attrition rate" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="attritionTarget">Quarterly Attrition Target (%)</label>
+                        <input type="number" class="form-input" id="attritionTarget" min="0" max="100" value="3.0" step="0.1" placeholder="Your quarterly target" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="csatScore">CSAT Score (%)</label>
+                        <input type="number" class="form-input" id="csatScore" min="0" max="100" value="88" step="0.1" placeholder="Customer satisfaction score" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="csatResponse">CSAT Response Rate (%)</label>
+                        <input type="number" class="form-input" id="csatResponse" min="0" max="100" value="76" step="0.1" placeholder="Survey response rate" oninput="updateLivePreview()">
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon">👥</div>
+                    <div class="panel-title">Team & Performance</div>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="form-label" for="soulvers">Number of Soulvers</label>
+                        <input type="number" class="form-input" id="soulvers" min="0" value="20" placeholder="Team members supervised" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="clients">Number of Clients</label>
+                        <input type="number" class="form-input" id="clients" min="0" value="6" placeholder="Active client accounts" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="lostPositions">Lost Positions This Month</label>
+                        <input type="number" class="form-input" id="lostPositions" min="0" value="0" placeholder="Positions lost (5% penalty each)" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="lostClients">Lost Clients This Month</label>
+                        <input type="number" class="form-input" id="lostClients" min="0" value="0" placeholder="Clients lost (26% penalty each)" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newPositions">New Positions (Above Historical Max)</label>
+                        <input type="number" class="form-input" id="newPositions" min="0" value="2" placeholder="New positions beyond peak" oninput="updateLivePreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="promotions">Team Member Promotions</label>
+                        <input type="number" class="form-input" id="promotions" min="0" value="1" placeholder="Promotions this month" oninput="updateLivePreview()">
+                    </div>
+
+                    <div class="tenure-section">
+                        <h3>Team Member Tenure</h3>
+                        <div id="tenureInputs" role="group" aria-label="Team member tenure inputs"></div>
+                        <button type="button" class="btn btn-success" onclick="addTenureInput()">+ Add Team Member</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <section class="calculate-section">
+            <div class="calculate-panel">
+                <div class="calculate-title">Ready to Calculate Your Compensation?</div>
+                <div class="calculate-subtitle">Get your detailed monthly variable compensation breakdown</div>
+                <button class="btn btn-primary calculate-btn" onclick="calculateCompensation()" id="calculateBtn">
+                    Calculate Compensation
+                </button>
+            </div>
+        </section>
+
+        <section class="results" id="results" aria-live="polite">
+            <div class="results-header">
+                <div class="results-title">Your Monthly Compensation</div>
+                <div class="results-subtitle">Solvo Global calculation results (estimation only)</div>
+            </div>
+
+            <div class="total-card">
+                <div class="total-label">Total Monthly Variable Compensation</div>
+                <div class="total-amount" id="totalAmount">$0 COP</div>
+                <div class="total-note">Performance-driven earnings calculation</div>
+            </div>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-header">
+                        <div>💼</div>
+                        <div class="result-title">KPI Bonus</div>
+                    </div>
+                    <div class="result-value" id="kpiBonus">$0</div>
+                    <div class="result-details" id="kpiDetails">Performance details</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div>🔄</div>
+                        <div class="result-title">Attrition Bonus</div>
+                    </div>
+                    <div class="result-value" id="attritionBonus">$0</div>
+                    <div class="result-details" id="attritionDetails">Retention performance</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div>😊</div>
+                        <div class="result-title">CSAT Bonus</div>
+                    </div>
+                    <div class="result-value" id="csatBonus">$0</div>
+                    <div class="result-details" id="csatDetails">Customer satisfaction</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div>📈</div>
+                        <div class="result-title">Upselling Bonus</div>
+                    </div>
+                    <div class="result-value" id="upsellingBonus">$0</div>
+                    <div class="result-details" id="upsellingDetails">Growth achievements</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div>🚀</div>
+                        <div class="result-title">Promotion Bonus</div>
+                    </div>
+                    <div class="result-value" id="promotionBonus">$0</div>
+                    <div class="result-details" id="promotionDetails">Team development</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-header">
+                        <div>⏰</div>
+                        <div class="result-title">Tenure Bonus</div>
+                    </div>
+                    <div class="result-value" id="tenureBonus">$0</div>
+                    <div class="result-details" id="tenureDetails">Team seniority</div>
+                </div>
+            </div>
+
+            <div class="breakdown">
+                <div class="breakdown-header">Calculation Breakdown</div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Matrix Percentage</span>
+                    <span class="breakdown-value" id="matrixPercentage">0%</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Total Interactions</span>
+                    <span class="breakdown-value" id="totalInteractions">0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Interaction Multiplier</span>
+                    <span class="breakdown-value" id="interactionMultiplier">100%</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Matrix Bonuses (Before Multiplier)</span>
+                    <span class="breakdown-value" id="matrixBeforeMultiplier">$0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Matrix Bonuses (After Multiplier)</span>
+                    <span class="breakdown-value" id="matrixAfterMultiplier">$0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Penalties Applied</span>
+                    <span class="breakdown-value penalty" id="penalties">-$0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label">Additional Bonuses</span>
+                    <span class="breakdown-value bonus" id="additionalBonuses">+$0</span>
+                </div>
+                <div class="breakdown-row">
+                    <span class="breakdown-label"><strong>Final Monthly Total</strong></span>
+                    <span class="breakdown-value total" id="finalTotal"><strong>$0</strong></span>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div>© 2025 Solvo Global - Supervisor Compensation Calculator (Unofficial Tool)</div>
+            <div class="footer-tagline">Bringing You a World of Talent</div>
+            <div>* El bono puede cambiar en cualquier momento a discreción de la empresa</div>
+            <div class="legal-footer">
+                This calculator is not affiliated with or endorsed by Solvo Global. 
+                Created by Sebastián Belalcázar for personal estimation use. 
+                All compensation formulas are based on publicly available documentation 
+                and may not reflect current company policies.
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let calculationData = {};
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function formatCurrency(amount) {
+            if (!amount || isNaN(amount)) return '$0 COP';
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.querySelector('.theme-toggle').textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        }
+
+        function calculateKPIBonus(kpiPercentage) {
+            if (kpiPercentage < 85) return { bonus: 0, matrixContribution: 0 };
+
+            let bonus = 0;
+            let matrixContribution = 0;
+
+            if (kpiPercentage >= 95) {
+                const points85to94 = 10;
+                bonus += points85to94 * 100000;
+                matrixContribution += points85to94 * 3.3;
+
+                const pointsAbove95 = Math.min(kpiPercentage - 95, 5);
+                bonus += pointsAbove95 * 40000;
+                matrixContribution += pointsAbove95 * 1.3;
+            } else {
+                const pointsAbove85 = kpiPercentage - 85;
+                bonus = pointsAbove85 * 100000;
+                matrixContribution = pointsAbove85 * 3.3;
+            }
+
+            return { 
+                bonus: Math.min(bonus, 1200000), 
+                matrixContribution: Math.min(matrixContribution, 40) 
+            };
+        }
+
+        function calculateAttritionBonus(attritionRate, quarterlyTarget) {
+            const baseline = quarterlyTarget * 1.20;
+            if (attritionRate >= baseline) return { bonus: 0, matrixContribution: 0 };
+
+            const improvement = baseline - attritionRate;
+            const increments = improvement / 0.25;
+            const bonus = increments * 125000;
+            const matrixContribution = increments * 4.2;
+
+            return { 
+                bonus: Math.min(bonus, 1800000), 
+                matrixContribution: Math.min(matrixContribution, 60) 
+            };
+        }
+
+        function calculateCSATBonus(csatScore, responseRate) {
+            if (csatScore < 80) return { bonus: 0, matrixContribution: 0 };
+
+            let baseBonus = 0;
+            let matrixContribution = 0;
+
+            if (csatScore >= 90) {
+                const points80to89 = 10;
+                baseBonus += points80to89 * 100000;
+                matrixContribution += points80to89 * 3.3;
+
+                const pointsAbove90 = Math.min(csatScore - 90, 10);
+                baseBonus += pointsAbove90 * 20000;
+                matrixContribution += pointsAbove90 * 0.67;
+            } else {
+                const pointsAbove80 = csatScore - 80;
+                baseBonus = pointsAbove80 * 100000;
+                matrixContribution = pointsAbove80 * 3.3;
+            }
+
+            baseBonus = Math.min(baseBonus, 1200000);
+
+            let finalBonus = baseBonus;
+            if (responseRate >= 75) {
+                finalBonus = baseBonus;
+            } else if (responseRate >= 50) {
+                finalBonus = baseBonus * (responseRate / 100);
+            } else {
+                finalBonus = baseBonus * (responseRate / 50) * 0.5;
+            }
+
+            return { 
+                bonus: finalBonus, 
+                matrixContribution: matrixContribution 
+            };
+        }
+
+        function calculateInteractionMultiplier(numSoulvers, numClients) {
+            const totalInteractions = numSoulvers + (numClients * 0.5);
+            if (totalInteractions < 10) return 0;
+
+            let multiplier = 10;
+
+            if (totalInteractions <= 28) {
+                const extraInteractions = totalInteractions - 10;
+                multiplier += extraInteractions * 5;
+            } else if (totalInteractions <= 36) {
+                multiplier += (28 - 10) * 5;
+                const extraAfter28 = totalInteractions - 28;
+                multiplier += extraAfter28 * 5;
+            } else {
+                multiplier += (28 - 10) * 5;
+                multiplier += (36 - 28) * 5;
+                const extraAfter36 = totalInteractions - 36;
+                multiplier += extraAfter36 * 2;
+            }
+
+            return multiplier / 100;
+        }
+
+        function calculateTenureBonus() {
+            const tenureInputs = document.querySelectorAll('.tenure-years');
+            let totalBonus = 0;
+            let details = [];
+
+            tenureInputs.forEach((input, index) => {
+                const nameInput = document.querySelectorAll('.tenure-name')[index];
+                const years = parseFloat(input.value) || 0;
+                const name = nameInput.value || `Soulver ${index + 1}`;
+
+                if (years > 0) {
+                    let bonus = 0;
+
+                    if (years >= 3) {
+                        bonus = 60000;
+                    } else if (years >= 2.5) {
+                        bonus = 50000;
+                    } else if (years >= 2) {
+                        bonus = 40000;
+                    } else if (years >= 1.5) {
+                        bonus = 20000;
+                    } else if (years >= 1) {
+                        bonus = 10000;
+                    }
+
+                    if (bonus > 0) {
+                        totalBonus += bonus;
+                        details.push(`${name}: ${years} years - ${formatCurrency(bonus)}`);
+                    }
+                }
+            });
+
+            return { total: totalBonus, details: details };
+        }
+
+        const updateLivePreview = debounce(() => {
+            const inputs = {
+                kpiPerformance: parseFloat(document.getElementById('kpiPerformance').value) || 0,
+                attritionRate: parseFloat(document.getElementById('attritionRate').value) || 0,
+                attritionTarget: parseFloat(document.getElementById('attritionTarget').value) || 0,
+                csatScore: parseFloat(document.getElementById('csatScore').value) || 0,
+                csatResponse: parseFloat(document.getElementById('csatResponse').value) || 0,
+                soulvers: parseInt(document.getElementById('soulvers').value) || 0,
+                clients: parseInt(document.getElementById('clients').value) || 0,
+                lostPositions: parseInt(document.getElementById('lostPositions').value) || 0,
+                lostClients: parseInt(document.getElementById('lostClients').value) || 0,
+                newPositions: parseInt(document.getElementById('newPositions').value) || 0,
+                promotions: parseInt(document.getElementById('promotions').value) || 0
+            };
+
+            const quickTotal = calculateQuickTotal(inputs);
+            document.getElementById('liveTotal').textContent = formatCurrency(quickTotal);
+            document.getElementById('livePreview').classList.add('show');
+        }, 300);
+
+        function calculateQuickTotal(inputs) {
+            try {
+                const kpiResult = calculateKPIBonus(inputs.kpiPerformance);
+                const attritionResult = calculateAttritionBonus(inputs.attritionRate, inputs.attritionTarget);
+                const csatResult = calculateCSATBonus(inputs.csatScore, inputs.csatResponse);
+                const tenureData = calculateTenureBonus();
+
+                const totalMatrixBonus = kpiResult.bonus + attritionResult.bonus + csatResult.bonus;
+                const totalMatrixPercentage = kpiResult.matrixContribution + attritionResult.matrixContribution + csatResult.matrixContribution;
+
+                const interactionMultiplier = calculateInteractionMultiplier(inputs.soulvers, inputs.clients);
+                const matrixAfterMultiplier = totalMatrixBonus * interactionMultiplier;
+
+                let penaltyAmount = 0;
+                if (inputs.lostClients >= 2) {
+                    penaltyAmount = matrixAfterMultiplier;
+                } else {
+                    const penaltyPercentage = (inputs.lostPositions * 5) + (inputs.lostClients * 26);
+                    penaltyAmount = matrixAfterMultiplier * (penaltyPercentage / 100);
+                }
+
+                const matrixAfterPenalties = matrixAfterMultiplier - penaltyAmount;
+                const upsellingBonus = inputs.newPositions * 350000;
+                const promotionBonus = inputs.promotions * 500000;
+
+                let adjustedTenureBonus = tenureData.total;
+                if (totalMatrixPercentage < 100) {
+                    adjustedTenureBonus = tenureData.total * (totalMatrixPercentage / 100);
+                }
+
+                return Math.max(0, matrixAfterPenalties + upsellingBonus + promotionBonus + adjustedTenureBonus);
+            } catch (error) {
+                console.error('Calculation error:', error);
+                return 0;
+            }
+        }
+
+        function addTenureInput() {
+            const container = document.getElementById('tenureInputs');
+            const div = document.createElement('div');
+            div.className = 'tenure-item';
+            div.innerHTML = `
+                <input type="text" class="form-input tenure-name" placeholder="Team member name" aria-label="Team member name">
+                <input type="number" class="form-input tenure-years" placeholder="Years" min="0" step="0.1" oninput="updateLivePreview()" aria-label="Years of service">
+                <button type="button" class="btn btn-danger" onclick="removeTenure(this)" aria-label="Remove team member">Remove</button>
+            `;
+            container.appendChild(div);
+            updateLivePreview();
+        }
+
+        function removeTenure(button) {
+            button.parentElement.remove();
+            updateLivePreview();
+        }
+
+        function calculateCompensation() {
+            const btn = document.getElementById('calculateBtn');
+            btn.textContent = 'Calculating...';
+            btn.disabled = true;
+
+            try {
+                const inputs = {
+                    kpiPerformance: parseFloat(document.getElementById('kpiPerformance').value) || 0,
+                    attritionRate: parseFloat(document.getElementById('attritionRate').value) || 0,
+                    attritionTarget: parseFloat(document.getElementById('attritionTarget').value) || 0,
+                    csatScore: parseFloat(document.getElementById('csatScore').value) || 0,
+                    csatResponse: parseFloat(document.getElementById('csatResponse').value) || 0,
+                    soulvers: parseInt(document.getElementById('soulvers').value) || 0,
+                    clients: parseInt(document.getElementById('clients').value) || 0,
+                    lostPositions: parseInt(document.getElementById('lostPositions').value) || 0,
+                    lostClients: parseInt(document.getElementById('lostClients').value) || 0,
+                    newPositions: parseInt(document.getElementById('newPositions').value) || 0,
+                    promotions: parseInt(document.getElementById('promotions').value) || 0
+                };
+
+                const kpiResult = calculateKPIBonus(inputs.kpiPerformance);
+                const attritionResult = calculateAttritionBonus(inputs.attritionRate, inputs.attritionTarget);
+                const csatResult = calculateCSATBonus(inputs.csatScore, inputs.csatResponse);
+                const tenureData = calculateTenureBonus();
+
+                const totalMatrixPercentage = kpiResult.matrixContribution + attritionResult.matrixContribution + csatResult.matrixContribution;
+                const totalMatrixBonus = kpiResult.bonus + attritionResult.bonus + csatResult.bonus;
+
+                const totalInteractions = inputs.soulvers + (inputs.clients * 0.5);
+                const interactionMultiplier = calculateInteractionMultiplier(inputs.soulvers, inputs.clients);
+                const matrixAfterMultiplier = totalMatrixBonus * interactionMultiplier;
+
+                let penaltyAmount = 0;
+                let penaltyPercentage = 0;
+
+                if (inputs.lostClients >= 2) {
+                    penaltyAmount = matrixAfterMultiplier;
+                    penaltyPercentage = 100;
+                } else {
+                    penaltyPercentage = (inputs.lostPositions * 5) + (inputs.lostClients * 26);
+                    penaltyAmount = matrixAfterMultiplier * (penaltyPercentage / 100);
+                }
+
+                const matrixAfterPenalties = matrixAfterMultiplier - penaltyAmount;
+                const upsellingBonus = inputs.newPositions * 350000;
+                const promotionBonus = inputs.promotions * 500000;
+                const totalAdditionalBonuses = upsellingBonus + promotionBonus + tenureData.total;
+
+                let adjustedTenureBonus = tenureData.total;
+                if (totalMatrixPercentage < 100) {
+                    adjustedTenureBonus = tenureData.total * (totalMatrixPercentage / 100);
+                }
+
+                const finalTotal = matrixAfterPenalties + upsellingBonus + promotionBonus + adjustedTenureBonus;
+
+                calculationData = { ...inputs, total: finalTotal };
+
+                document.getElementById('kpiBonus').textContent = formatCurrency(kpiResult.bonus);
+                document.getElementById('kpiDetails').textContent = `${inputs.kpiPerformance}% performance • ${kpiResult.matrixContribution.toFixed(1)}% matrix contribution`;
+
+                document.getElementById('attritionBonus').textContent = formatCurrency(attritionResult.bonus);
+                document.getElementById('attritionDetails').textContent = `${inputs.attritionRate}% vs ${(inputs.attritionTarget * 1.20).toFixed(1)}% baseline • ${attritionResult.matrixContribution.toFixed(1)}% matrix`;
+
+                document.getElementById('csatBonus').textContent = formatCurrency(csatResult.bonus);
+                document.getElementById('csatDetails').textContent = `${inputs.csatScore}% score • ${inputs.csatResponse}% response rate • ${csatResult.matrixContribution.toFixed(1)}% matrix`;
+
+                document.getElementById('upsellingBonus').textContent = formatCurrency(upsellingBonus);
+                document.getElementById('upsellingDetails').textContent = `${inputs.newPositions} new positions above historical maximum`;
+
+                document.getElementById('promotionBonus').textContent = formatCurrency(promotionBonus);
+                document.getElementById('promotionDetails').textContent = `${inputs.promotions} team member promotions this month`;
+
+                document.getElementById('tenureBonus').textContent = formatCurrency(adjustedTenureBonus);
+                document.getElementById('tenureDetails').innerHTML = tenureData.details.length > 0 ? tenureData.details.join('<br>') : 'No team members added yet';
+
+                document.getElementById('matrixPercentage').textContent = `${totalMatrixPercentage.toFixed(1)}%`;
+                document.getElementById('totalInteractions').textContent = totalInteractions.toFixed(1);
+                document.getElementById('interactionMultiplier').textContent = `${(interactionMultiplier * 100).toFixed(0)}%`;
+                document.getElementById('matrixBeforeMultiplier').textContent = formatCurrency(totalMatrixBonus);
+                document.getElementById('matrixAfterMultiplier').textContent = formatCurrency(matrixAfterMultiplier);
+                document.getElementById('penalties').textContent = `-${formatCurrency(penaltyAmount)}`;
+                document.getElementById('additionalBonuses').textContent = `+${formatCurrency(totalAdditionalBonuses)}`;
+                document.getElementById('finalTotal').textContent = formatCurrency(finalTotal);
+                document.getElementById('totalAmount').textContent = formatCurrency(finalTotal);
+
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Calculation error:', error);
+                alert('An error occurred during calculation. Please check your inputs and try again.');
+            } finally {
+                btn.textContent = 'Recalculate';
+                btn.disabled = false;
+            }
+        }
+
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+            document.querySelector('.theme-toggle').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+            addTenureInput();
+            addTenureInput();
+            updateLivePreview();
+        });
+    </script>
+</body>
+</html>
