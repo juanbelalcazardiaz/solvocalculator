@@ -46,8 +46,11 @@
         .header {
             background: linear-gradient(135deg, #F09F54 0%, #E88A3A 100%);
             color: white;
-            padding: 2.5rem 2rem 2rem;
+            padding: 2rem 2rem 1.5rem;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .header-content {
@@ -55,11 +58,17 @@
             margin: 0 auto;
         }
 
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
         .header-brand {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1.5rem;
         }
 
         .brand-logo {
@@ -73,22 +82,25 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.03em;
+        .header-info {
+            text-align: right;
         }
 
-        .header p {
-            opacity: 0.95;
-            font-size: 1rem;
+        .last-updated {
+            font-size: 0.875rem;
+            opacity: 0.9;
             font-weight: 500;
         }
 
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.03em;
+        }
+
         .header-subtitle {
-            margin-top: 0.75rem;
-            font-size: 0.9rem;
+            font-size: 0.9375rem;
             opacity: 0.9;
             font-weight: 500;
         }
@@ -187,6 +199,12 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border-color);
             margin-bottom: 2rem;
+            position: sticky;
+            top: 120px;
+            z-index: 50;
+        }
+
+        .filter-content {
             display: flex;
             align-items: center;
             gap: 1.5rem;
@@ -198,6 +216,9 @@
             font-size: 0.9375rem;
             color: var(--text-primary);
             letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .filter-controls {
@@ -219,7 +240,7 @@
             background: white;
             cursor: pointer;
             transition: all 0.2s;
-            min-width: 180px;
+            min-width: 200px;
         }
 
         .filter-select:hover {
@@ -244,6 +265,24 @@
             font-weight: 600;
         }
 
+        .btn-reset {
+            background: var(--bg-color);
+            color: var(--text-primary);
+            padding: 0.625rem 1.25rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-reset:hover {
+            border-color: var(--solvo-orange);
+            background: #fffbf6;
+        }
+
         .section-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -263,10 +302,56 @@
             font-weight: 500;
         }
 
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: var(--bg-color);
+            border-radius: 16px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state h3 {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+        }
+
+        /* Comparison Badge */
+        .comparison-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            padding: 0.25rem 0.625rem;
+            border-radius: 6px;
+            margin-left: 0.5rem;
+        }
+
+        .comparison-badge.positive {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .comparison-badge.negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .comparison-badge.neutral {
+            background: var(--bg-color);
+            color: var(--text-secondary);
+        }
+
         /* Recruiter Performance Cards */
         .recruiter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -306,6 +391,11 @@
             font-weight: 700;
             color: white;
             box-shadow: 0 4px 12px rgba(240, 159, 84, 0.3);
+            flex-shrink: 0;
+        }
+
+        .recruiter-info {
+            flex: 1;
         }
 
         .recruiter-info h3 {
@@ -621,7 +711,18 @@
 
         @media (max-width: 768px) {
             .header {
-                padding: 1.75rem 1rem;
+                padding: 1.5rem 1rem;
+                position: relative;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .header-info {
+                text-align: left;
             }
 
             .header h1 {
@@ -638,6 +739,21 @@
 
             .filter-section {
                 margin: 1rem;
+                position: relative;
+                top: 0;
+            }
+
+            .filter-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .filter-controls {
+                width: 100%;
+            }
+
+            .filter-select {
+                width: 100%;
             }
 
             .ytd-grid,
@@ -658,12 +774,16 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <div class="header-brand">
-                <div class="brand-logo">SOLVO</div>
+            <div class="header-top">
+                <div class="header-brand">
+                    <div class="brand-logo">SOLVO</div>
+                </div>
+                <div class="header-info">
+                    <div class="last-updated" id="lastUpdated">Last Updated: Just now</div>
+                </div>
             </div>
             <h1>Recruitment Performance Dashboard</h1>
-            <p>Year to Date 2025 - Team Excellence & Impact</p>
-            <div class="header-subtitle">Synergy HomeCare | Operations by Solvo Global</div>
+            <div class="header-subtitle">Synergy HomeCare | Year to Date 2025</div>
         </div>
     </div>
 
@@ -694,25 +814,31 @@
     <div class="dashboard">
         <!-- Filter Section -->
         <div class="filter-section">
-            <div class="filter-label">📅 View Period:</div>
-            <div class="filter-controls">
-                <select class="filter-select" id="periodFilter" onchange="applyFilter()">
-                    <option value="ytd">Year to Date (All Months)</option>
-                    <option value="January">January 2025</option>
-                    <option value="February">February 2025</option>
-                    <option value="March">March 2025</option>
-                    <option value="April">April 2025</option>
-                    <option value="May">May 2025</option>
-                    <option value="June">June 2025</option>
-                    <option value="July">July 2025</option>
-                    <option value="August">August 2025</option>
-                    <option value="October">October 2025</option>
-                </select>
-                <div class="filter-badge" id="filterBadge">Showing: Year to Date</div>
+            <div class="filter-content">
+                <div class="filter-label">
+                    <span>📅</span>
+                    <span>View Period</span>
+                </div>
+                <div class="filter-controls">
+                    <select class="filter-select" id="periodFilter" onchange="applyFilter()">
+                        <option value="ytd">Year to Date (All Months)</option>
+                        <option value="January">January 2025</option>
+                        <option value="February">February 2025</option>
+                        <option value="March">March 2025</option>
+                        <option value="April">April 2025</option>
+                        <option value="May">May 2025</option>
+                        <option value="June">June 2025</option>
+                        <option value="July">July 2025</option>
+                        <option value="August">August 2025</option>
+                        <option value="October">October 2025</option>
+                    </select>
+                    <div class="filter-badge" id="filterBadge">Showing: Year to Date</div>
+                    <button class="btn-reset" onclick="resetFilter()">Reset View</button>
+                </div>
             </div>
         </div>
 
-        <!-- Year to Date Summary -->
+        <!-- Performance Summary -->
         <h2 class="section-title">📊 Performance Summary</h2>
         <p class="section-subtitle" id="summarySubtitle">January - October 2025 | Cumulative recruitment metrics</p>
         <div class="ytd-grid" id="ytdMetrics"></div>
@@ -723,9 +849,11 @@
         <div class="recruiter-grid" id="recruiterCards"></div>
 
         <!-- Monthly KPIs -->
-        <h2 class="section-title" id="kpiTitle">📅 Monthly KPIs & Targets</h2>
-        <p class="section-subtitle" id="kpiSubtitle">Current month performance against goals</p>
-        <div class="monthly-kpi-grid" id="monthlyKPIs"></div>
+        <div id="monthlyKPISection" style="display: none;">
+            <h2 class="section-title">📅 Monthly KPIs & Targets</h2>
+            <p class="section-subtitle" id="kpiSubtitle">Performance against monthly goals</p>
+            <div class="monthly-kpi-grid" id="monthlyKPIs"></div>
+        </div>
 
         <!-- Performance Charts -->
         <h2 class="section-title">📈 Trend Analysis</h2>
@@ -748,20 +876,18 @@
     </div>
 
     <script>
-        // Global data storage
+        // Global state
         let dashboardData = {
             hiring: null,
             status: null,
             job: null,
-            interviews: null,
             rawInterviews: null,
-            recruiters: null,
             monthlyData: null
         };
 
         let currentFilter = 'ytd';
+        let chartInstances = {};
 
-        // Solvo Global brand colors
         const solvoColors = {
             primary: '#F09F54',
             primaryLight: '#F7C08A',
@@ -774,7 +900,6 @@
         // Default data
         const defaultData = {
             hiring: {
-                Parent: 'Synergy HomeCare',
                 Applicants: 347,
                 Interviews: 205,
                 Offers: 175,
@@ -783,28 +908,8 @@
                 'Apply > Interview': 0.590778,
                 'Interview > Offer': 0.853659,
                 'Offer > Hire': 0.034286,
-                'Interview > Hire': 0.029268,
-                'Apply > Hire': 0.017291,
-                'Offer > Rejected': 0.005714
+                'Apply > Hire': 0.017291
             },
-            recruiters: [
-                {
-                    name: 'Mariana Arévalo',
-                    interviews: 73,
-                    hires: 4,
-                    sentDocuments: 21,
-                    noShows: 15,
-                    successRate: 46.3
-                },
-                {
-                    name: 'Yammile Gallegos',
-                    interviews: 35,
-                    hires: 4,
-                    sentDocuments: 9,
-                    noShows: 3,
-                    successRate: 51.4
-                }
-            ],
             monthlyData: [
                 { month: 'January', interviews: 5, success: 4, successRate: 80.0, noShows: 0, hires: 1 },
                 { month: 'February', interviews: 18, success: 9, successRate: 50.0, noShows: 3, hires: 1 },
@@ -817,6 +922,25 @@
                 { month: 'October', interviews: 5, success: 3, successRate: 60.0, noShows: 0, hires: 1 }
             ]
         };
+
+        // Update last updated time
+        function updateLastUpdated() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            document.getElementById('lastUpdated').textContent = `Last Updated: ${timeStr}`;
+        }
+
+        // Reset filter
+        function resetFilter() {
+            document.getElementById('periodFilter').value = 'ytd';
+            applyFilter();
+        }
 
         // Apply filter
         function applyFilter() {
@@ -831,7 +955,7 @@
 
         // Filter data by month
         function filterDataByMonth(month, rawInterviews) {
-            if (month === 'ytd' || !rawInterviews) return null;
+            if (month === 'ytd' || !rawInterviews) return rawInterviews;
             
             return rawInterviews.filter(interview => {
                 const date = new Date(interview['Interview Timestamp']);
@@ -887,6 +1011,7 @@
                     dashboardData.monthlyData = processMonthlyData(data);
                 }
 
+                updateLastUpdated();
                 renderDashboard();
                 alert('✅ Dashboard updated successfully!');
             } catch (error) {
@@ -897,6 +1022,8 @@
 
         // Process recruiter data
         function processRecruiterData(interviews) {
+            if (!interviews || interviews.length === 0) return [];
+            
             const recruiterMap = {};
             
             interviews.forEach(interview => {
@@ -934,7 +1061,7 @@
             return Object.values(recruiterMap).map(r => ({
                 ...r,
                 successRate: r.interviews > 0 ? ((r.documentsSignedOrBetter / r.interviews) * 100).toFixed(1) : 0
-            }));
+            })).sort((a, b) => b.interviews - a.interviews);
         }
 
         // Process monthly data
@@ -977,41 +1104,39 @@
             return monthlyData.find(m => m.month === filter);
         }
 
-        // Render YTD metrics
-        function renderYTDMetrics(data, filter, monthData) {
+        // Render summary metrics
+        function renderSummaryMetrics(hiring, filter, monthData, filteredInterviews) {
             let metrics;
             
             if (filter === 'ytd') {
-                const totalInterviews = data.Interviews;
-                const totalHires = data.Hires;
-                const interviewToOffer = data['Interview > Offer'] * 100;
-                const overallConversion = data['Apply > Hire'] * 100;
+                const interviewToOffer = hiring['Interview > Offer'] * 100;
+                const overallConversion = hiring['Apply > Hire'] * 100;
 
                 metrics = [
                     { 
                         label: 'Total Applicants', 
-                        value: data.Applicants, 
+                        value: hiring.Applicants, 
                         subtitle: 'Candidates in pipeline',
                         badge: 'excellent',
                         badgeText: '✓ Strong Pipeline'
                     },
                     { 
                         label: 'Interviews Scheduled', 
-                        value: totalInterviews, 
+                        value: hiring.Interviews, 
                         subtitle: 'Candidate touchpoints',
                         badge: 'excellent',
                         badgeText: '✓ High Activity'
                     },
                     { 
                         label: 'Offers Extended', 
-                        value: data.Offers, 
+                        value: hiring.Offers, 
                         subtitle: 'Job proposals made',
                         badge: 'excellent',
                         badgeText: '🎯 Strong Flow'
                     },
                     { 
                         label: 'Successful Hires', 
-                        value: totalHires, 
+                        value: hiring.Hires, 
                         subtitle: 'Positions filled',
                         badge: 'good',
                         badgeText: '✓ Good'
@@ -1031,8 +1156,7 @@
                         badgeText: overallConversion >= 7 ? '✓ On Track' : '📊 Improving'
                     }
                 ];
-            } else {
-                // Single month view
+            } else if (monthData) {
                 metrics = [
                     { 
                         label: 'Interviews Scheduled', 
@@ -1086,6 +1210,16 @@
 
         // Render recruiter cards
         function renderRecruiterCards(recruiters) {
+            if (!recruiters || recruiters.length === 0) {
+                document.getElementById('recruiterCards').innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <h3>No Recruiter Data</h3>
+                        <p>No interview data available for the selected period</p>
+                    </div>
+                `;
+                return;
+            }
+
             const html = recruiters.map(r => {
                 const initials = r.name.split(' ').map(n => n[0]).join('');
                 const noShowRate = r.interviews > 0 ? ((r.noShows / r.interviews) * 100).toFixed(1) : 0;
@@ -1125,16 +1259,12 @@
 
         // Render monthly KPIs
         function renderMonthlyKPIs(monthData, filter) {
-            if (filter === 'ytd') {
-                document.getElementById('monthlyKPIs').style.display = 'none';
-                document.getElementById('kpiTitle').style.display = 'none';
-                document.getElementById('kpiSubtitle').style.display = 'none';
+            if (filter === 'ytd' || !monthData) {
+                document.getElementById('monthlyKPISection').style.display = 'none';
                 return;
             }
 
-            document.getElementById('monthlyKPIs').style.display = 'grid';
-            document.getElementById('kpiTitle').style.display = 'flex';
-            document.getElementById('kpiSubtitle').style.display = 'block';
+            document.getElementById('monthlyKPISection').style.display = 'block';
 
             const monthlyTarget = 20;
             const successTarget = 50;
@@ -1281,8 +1411,18 @@
             document.getElementById('weeklyTable').innerHTML = html;
         }
 
+        // Destroy existing charts
+        function destroyCharts() {
+            Object.values(chartInstances).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            chartInstances = {};
+        }
+
         // Render charts
-        function renderCharts(monthlyData, recruiters) {
+        function renderCharts(monthlyData, recruiters, filter) {
+            destroyCharts();
+
             const chartsHtml = `
                 <div class="chart-card">
                     <h3>Monthly Interview Trends</h3>
@@ -1300,7 +1440,7 @@
             document.getElementById('chartsGrid').innerHTML = chartsHtml;
 
             // Monthly trend chart
-            new Chart(document.getElementById('monthlyChart'), {
+            chartInstances.monthly = new Chart(document.getElementById('monthlyChart'), {
                 type: 'line',
                 data: {
                     labels: monthlyData.map(m => m.month),
@@ -1360,54 +1500,56 @@
             });
 
             // Recruiter comparison chart
-            new Chart(document.getElementById('recruiterChart'), {
-                type: 'bar',
-                data: {
-                    labels: recruiters.map(r => r.name.split(' ')[0]),
-                    datasets: [
-                        {
-                            label: 'Interviews Scheduled',
-                            data: recruiters.map(r => r.interviews),
-                            backgroundColor: 'rgba(240, 159, 84, 0.8)',
-                            borderRadius: 8,
-                            borderWidth: 0
+            if (recruiters && recruiters.length > 0) {
+                chartInstances.recruiter = new Chart(document.getElementById('recruiterChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: recruiters.map(r => r.name.split(' ')[0]),
+                        datasets: [
+                            {
+                                label: 'Interviews Scheduled',
+                                data: recruiters.map(r => r.interviews),
+                                backgroundColor: 'rgba(240, 159, 84, 0.8)',
+                                borderRadius: 8,
+                                borderWidth: 0
+                            },
+                            {
+                                label: 'Successful Hires',
+                                data: recruiters.map(r => r.hires),
+                                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                                borderRadius: 8,
+                                borderWidth: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: { size: 13, family: 'Inter', weight: '500' },
+                                    padding: 15,
+                                    usePointStyle: true
+                                }
+                            }
                         },
-                        {
-                            label: 'Successful Hires',
-                            data: recruiters.map(r => r.hires),
-                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                            borderRadius: 8,
-                            borderWidth: 0
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                font: { size: 13, family: 'Inter', weight: '500' },
-                                padding: 15,
-                                usePointStyle: true
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                grid: { color: '#f3f4f6' },
+                                ticks: { font: { family: 'Inter' } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: 'Inter' } }
                             }
                         }
-                    },
-                    scales: {
-                        y: { 
-                            beginAtZero: true,
-                            grid: { color: '#f3f4f6' },
-                            ticks: { font: { family: 'Inter' } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { family: 'Inter' } }
-                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         // Main render function
@@ -1416,43 +1558,35 @@
             const monthlyData = dashboardData.monthlyData || defaultData.monthlyData;
             const rawInterviews = dashboardData.rawInterviews;
             
-            // Get filtered data
-            let filteredInterviews, recruiters;
+            // Filter data based on current filter
+            let filteredInterviews = filterDataByMonth(currentFilter, rawInterviews);
+            let recruiters = filteredInterviews ? processRecruiterData(filteredInterviews) : [];
             
+            // Update subtitles
             if (currentFilter === 'ytd') {
-                filteredInterviews = rawInterviews || [];
-                recruiters = rawInterviews ? processRecruiterData(rawInterviews) : defaultData.recruiters;
-                
                 document.getElementById('summarySubtitle').textContent = 'January - October 2025 | Cumulative recruitment metrics';
                 document.getElementById('recruiterSubtitle').textContent = 'Individual contributions and key metrics';
             } else {
-                filteredInterviews = rawInterviews ? filterDataByMonth(currentFilter, rawInterviews) : [];
-                recruiters = filteredInterviews.length > 0 ? processRecruiterData(filteredInterviews) : [];
-                
                 const monthData = getFilteredMonthData(monthlyData, currentFilter);
-                
                 document.getElementById('summarySubtitle').textContent = `${currentFilter} 2025 performance metrics`;
                 document.getElementById('recruiterSubtitle').textContent = `Performance for ${currentFilter} 2025`;
                 
-                renderYTDMetrics(hiring, currentFilter, monthData);
                 renderMonthlyKPIs(monthData, currentFilter);
             }
             
-            if (currentFilter === 'ytd') {
-                renderYTDMetrics(hiring, currentFilter, null);
-                document.getElementById('monthlyKPIs').style.display = 'none';
-                document.getElementById('kpiTitle').style.display = 'none';
-                document.getElementById('kpiSubtitle').style.display = 'none';
-            }
+            const monthData = getFilteredMonthData(monthlyData, currentFilter);
             
+            // Render all sections
+            renderSummaryMetrics(hiring, currentFilter, monthData, filteredInterviews);
             renderRecruiterCards(recruiters);
-            renderCharts(monthlyData, recruiters.length > 0 ? recruiters : defaultData.recruiters);
+            renderCharts(monthlyData, recruiters, currentFilter);
             renderMonthlyTable(monthlyData);
             renderWeeklyTable();
         }
 
         // Initialize
         window.addEventListener('DOMContentLoaded', () => {
+            updateLastUpdated();
             renderDashboard();
         });
     </script>
