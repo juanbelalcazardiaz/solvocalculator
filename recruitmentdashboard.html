@@ -185,10 +185,75 @@
             transform: translateY(0);
         }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .dashboard {
             padding: 0 2rem 3rem;
             max-width: 1600px;
             margin: 0 auto;
+        }
+
+        /* Welcome/Empty State */
+        .welcome-state {
+            background: white;
+            margin: 2rem;
+            padding: 4rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 2px dashed var(--border-color);
+            text-align: center;
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .welcome-state h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .welcome-state p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .welcome-state .instructions {
+            background: var(--bg-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 2rem auto 0;
+            text-align: left;
+        }
+
+        .welcome-state .instructions h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .welcome-state .instructions ol {
+            margin-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .welcome-state .instructions li {
+            margin-bottom: 0.5rem;
+            font-size: 0.9375rem;
         }
 
         /* Filter Section */
@@ -321,31 +386,13 @@
             font-size: 0.875rem;
         }
 
-        /* Comparison Badge */
-        .comparison-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-            font-size: 0.8125rem;
-            font-weight: 600;
-            padding: 0.25rem 0.625rem;
-            border-radius: 6px;
-            margin-left: 0.5rem;
+        /* Hidden by default */
+        .dashboard-content {
+            display: none;
         }
 
-        .comparison-badge.positive {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .comparison-badge.negative {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .comparison-badge.neutral {
-            background: var(--bg-color);
-            color: var(--text-secondary);
+        .dashboard-content.active {
+            display: block;
         }
 
         /* Recruiter Performance Cards */
@@ -737,6 +784,11 @@
                 margin: 1rem;
             }
 
+            .welcome-state {
+                margin: 1rem;
+                padding: 2rem 1rem;
+            }
+
             .filter-section {
                 margin: 1rem;
                 position: relative;
@@ -779,7 +831,7 @@
                     <div class="brand-logo">SOLVO</div>
                 </div>
                 <div class="header-info">
-                    <div class="last-updated" id="lastUpdated">Last Updated: Just now</div>
+                    <div class="last-updated" id="lastUpdated">No data loaded</div>
                 </div>
             </div>
             <h1>Recruitment Performance Dashboard</h1>
@@ -789,7 +841,7 @@
 
     <div class="upload-section">
         <h2>Import Data Files</h2>
-        <p>Upload your recruitment Excel files to refresh the dashboard metrics</p>
+        <p>Upload your recruitment Excel files to view the dashboard metrics</p>
         <div class="file-upload-grid">
             <div class="file-upload-item">
                 <label>Hiring Totals & Conversion</label>
@@ -808,10 +860,27 @@
                 <input type="file" id="interviewFile" accept=".xlsx,.xls">
             </div>
         </div>
-        <button class="btn" onclick="loadAllData()">Refresh Dashboard</button>
+        <button class="btn" id="loadBtn" onclick="loadAllData()" disabled>Load Dashboard</button>
     </div>
 
-    <div class="dashboard">
+    <!-- Welcome State -->
+    <div class="welcome-state" id="welcomeState">
+        <div class="welcome-icon">📊</div>
+        <h2>Welcome to Your Recruitment Dashboard</h2>
+        <p>Upload your recruitment data files to get started. The dashboard will display comprehensive performance metrics, trends, and insights.</p>
+        <div class="instructions">
+            <h3>Getting Started:</h3>
+            <ol>
+                <li>Upload at least the "Scheduled Interviews" file above</li>
+                <li>Optionally upload additional files for more detailed metrics</li>
+                <li>Click "Load Dashboard" to view your data</li>
+                <li>Use the filter options to analyze specific time periods</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Dashboard Content (Hidden by default) -->
+    <div class="dashboard dashboard-content" id="dashboardContent">
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="filter-content">
@@ -887,6 +956,7 @@
 
         let currentFilter = 'ytd';
         let chartInstances = {};
+        let dataLoaded = false;
 
         const solvoColors = {
             primary: '#F09F54',
@@ -897,31 +967,25 @@
             warning: '#f59e0b'
         };
 
-        // Default data
-        const defaultData = {
-            hiring: {
-                Applicants: 347,
-                Interviews: 205,
-                Offers: 175,
-                Hires: 6,
-                'Offers Rejected': 1,
-                'Apply > Interview': 0.590778,
-                'Interview > Offer': 0.853659,
-                'Offer > Hire': 0.034286,
-                'Apply > Hire': 0.017291
-            },
-            monthlyData: [
-                { month: 'January', interviews: 5, success: 4, successRate: 80.0, noShows: 0, hires: 1 },
-                { month: 'February', interviews: 18, success: 9, successRate: 50.0, noShows: 3, hires: 1 },
-                { month: 'March', interviews: 17, success: 7, successRate: 41.2, noShows: 2, hires: 0 },
-                { month: 'April', interviews: 21, success: 11, successRate: 52.4, noShows: 5, hires: 2 },
-                { month: 'May', interviews: 18, success: 5, successRate: 27.8, noShows: 4, hires: 0 },
-                { month: 'June', interviews: 18, success: 9, successRate: 50.0, noShows: 1, hires: 1 },
-                { month: 'July', interviews: 3, success: 1, successRate: 33.3, noShows: 1, hires: 0 },
-                { month: 'August', interviews: 3, success: 1, successRate: 33.3, noShows: 0, hires: 0 },
-                { month: 'October', interviews: 5, success: 3, successRate: 60.0, noShows: 0, hires: 1 }
-            ]
-        };
+        // Check if required files are uploaded
+        function checkFilesUploaded() {
+            const interviewFile = document.getElementById('interviewFile').files[0];
+            const loadBtn = document.getElementById('loadBtn');
+            
+            if (interviewFile) {
+                loadBtn.disabled = false;
+            } else {
+                loadBtn.disabled = true;
+            }
+        }
+
+        // Add event listeners to file inputs
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInputs = ['hiringFile', 'statusFile', 'jobFile', 'interviewFile'];
+            fileInputs.forEach(id => {
+                document.getElementById(id).addEventListener('change', checkFilesUploaded);
+            });
+        });
 
         // Update last updated time
         function updateLastUpdated() {
@@ -936,6 +1000,13 @@
             document.getElementById('lastUpdated').textContent = `Last Updated: ${timeStr}`;
         }
 
+        // Show dashboard content
+        function showDashboard() {
+            document.getElementById('welcomeState').style.display = 'none';
+            document.getElementById('dashboardContent').classList.add('active');
+            dataLoaded = true;
+        }
+
         // Reset filter
         function resetFilter() {
             document.getElementById('periodFilter').value = 'ytd';
@@ -944,6 +1015,8 @@
 
         // Apply filter
         function applyFilter() {
+            if (!dataLoaded) return;
+            
             const filter = document.getElementById('periodFilter').value;
             currentFilter = filter;
             
@@ -994,7 +1067,17 @@
                 interview: document.getElementById('interviewFile').files[0]
             };
 
+            if (!files.interview) {
+                alert('⚠️ Please upload at least the Scheduled Interviews file to continue.');
+                return;
+            }
+
             try {
+                // Show loading state
+                const loadBtn = document.getElementById('loadBtn');
+                loadBtn.textContent = 'Loading...';
+                loadBtn.disabled = true;
+
                 if (files.hiring) {
                     const data = await readExcelFile(files.hiring);
                     dashboardData.hiring = data[0];
@@ -1011,13 +1094,43 @@
                     dashboardData.monthlyData = processMonthlyData(data);
                 }
 
+                // Calculate hiring data from interviews if not provided
+                if (!dashboardData.hiring && dashboardData.rawInterviews) {
+                    dashboardData.hiring = calculateHiringMetrics(dashboardData.rawInterviews);
+                }
+
                 updateLastUpdated();
+                showDashboard();
                 renderDashboard();
-                alert('✅ Dashboard updated successfully!');
+                
+                loadBtn.textContent = 'Refresh Dashboard';
+                loadBtn.disabled = false;
             } catch (error) {
                 console.error('Error:', error);
-                alert('❌ Error loading files. Please check the file format.');
+                alert('❌ Error loading files. Please check the file format and try again.');
+                const loadBtn = document.getElementById('loadBtn');
+                loadBtn.textContent = 'Load Dashboard';
+                loadBtn.disabled = false;
             }
+        }
+
+        // Calculate hiring metrics from interview data
+        function calculateHiringMetrics(interviews) {
+            const total = interviews.length;
+            const hires = interviews.filter(i => i['Current Applicant State'] === 'Hired' || i['Current Applicant State'] === 'Orientation Scheduled').length;
+            const offers = interviews.filter(i => ['Hired', 'Orientation Scheduled', 'Offer Rejected', 'Documents Signed', 'Sent Documents'].includes(i['Current Applicant State'])).length;
+            
+            return {
+                Applicants: total,
+                Interviews: total,
+                Offers: offers,
+                Hires: hires,
+                'Offers Rejected': 0,
+                'Apply > Interview': 1,
+                'Interview > Offer': offers / total,
+                'Offer > Hire': hires / (offers || 1),
+                'Apply > Hire': hires / total
+            };
         }
 
         // Process recruiter data
@@ -1105,38 +1218,38 @@
         }
 
         // Render summary metrics
-        function renderSummaryMetrics(hiring, filter, monthData, filteredInterviews) {
+        function renderSummaryMetrics(hiring, filter, monthData) {
             let metrics;
             
             if (filter === 'ytd') {
-                const interviewToOffer = hiring['Interview > Offer'] * 100;
-                const overallConversion = hiring['Apply > Hire'] * 100;
+                const interviewToOffer = (hiring['Interview > Offer'] || 0) * 100;
+                const overallConversion = (hiring['Apply > Hire'] || 0) * 100;
 
                 metrics = [
                     { 
                         label: 'Total Applicants', 
-                        value: hiring.Applicants, 
+                        value: hiring.Applicants || 0, 
                         subtitle: 'Candidates in pipeline',
                         badge: 'excellent',
                         badgeText: '✓ Strong Pipeline'
                     },
                     { 
                         label: 'Interviews Scheduled', 
-                        value: hiring.Interviews, 
+                        value: hiring.Interviews || 0, 
                         subtitle: 'Candidate touchpoints',
                         badge: 'excellent',
                         badgeText: '✓ High Activity'
                     },
                     { 
                         label: 'Offers Extended', 
-                        value: hiring.Offers, 
+                        value: hiring.Offers || 0, 
                         subtitle: 'Job proposals made',
                         badge: 'excellent',
                         badgeText: '🎯 Strong Flow'
                     },
                     { 
                         label: 'Successful Hires', 
-                        value: hiring.Hires, 
+                        value: hiring.Hires || 0, 
                         subtitle: 'Positions filled',
                         badge: 'good',
                         badgeText: '✓ Good'
@@ -1420,7 +1533,7 @@
         }
 
         // Render charts
-        function renderCharts(monthlyData, recruiters, filter) {
+        function renderCharts(monthlyData, recruiters) {
             destroyCharts();
 
             const chartsHtml = `
@@ -1554,8 +1667,10 @@
 
         // Main render function
         function renderDashboard() {
-            const hiring = dashboardData.hiring || defaultData.hiring;
-            const monthlyData = dashboardData.monthlyData || defaultData.monthlyData;
+            if (!dataLoaded) return;
+
+            const hiring = dashboardData.hiring;
+            const monthlyData = dashboardData.monthlyData;
             const rawInterviews = dashboardData.rawInterviews;
             
             // Filter data based on current filter
@@ -1577,18 +1692,12 @@
             const monthData = getFilteredMonthData(monthlyData, currentFilter);
             
             // Render all sections
-            renderSummaryMetrics(hiring, currentFilter, monthData, filteredInterviews);
+            renderSummaryMetrics(hiring, currentFilter, monthData);
             renderRecruiterCards(recruiters);
-            renderCharts(monthlyData, recruiters, currentFilter);
+            renderCharts(monthlyData, recruiters);
             renderMonthlyTable(monthlyData);
             renderWeeklyTable();
         }
-
-        // Initialize
-        window.addEventListener('DOMContentLoaded', () => {
-            updateLastUpdated();
-            renderDashboard();
-        });
     </script>
 </body>
 </html>
