@@ -17,7 +17,6 @@
         }
 
         :root {
-            /* Solvo Global Brand Colors */
             --solvo-orange: #F09F54;
             --solvo-orange-light: #F7C08A;
             --solvo-orange-dark: #E88A3A;
@@ -180,6 +179,71 @@
             margin: 0 auto;
         }
 
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.625rem 1rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 0.9375rem;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 180px;
+        }
+
+        .filter-select:hover {
+            border-color: var(--solvo-orange);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--solvo-orange);
+            box-shadow: 0 0 0 3px rgba(240, 159, 84, 0.1);
+        }
+
+        .filter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--solvo-orange-light), var(--solvo-orange));
+            color: white;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
         .section-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -246,15 +310,9 @@
 
         .recruiter-info h3 {
             font-size: 1.25rem;
-            margin-bottom: 0.25rem;
             font-weight: 600;
             letter-spacing: -0.02em;
-        }
-
-        .recruiter-info p {
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            font-weight: 500;
+            color: var(--text-primary);
         }
 
         .recruiter-stats {
@@ -578,6 +636,10 @@
                 margin: 1rem;
             }
 
+            .filter-section {
+                margin: 1rem;
+            }
+
             .ytd-grid,
             .monthly-kpi-grid {
                 grid-template-columns: 1fr;
@@ -630,28 +692,48 @@
     </div>
 
     <div class="dashboard">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-label">📅 View Period:</div>
+            <div class="filter-controls">
+                <select class="filter-select" id="periodFilter" onchange="applyFilter()">
+                    <option value="ytd">Year to Date (All Months)</option>
+                    <option value="January">January 2025</option>
+                    <option value="February">February 2025</option>
+                    <option value="March">March 2025</option>
+                    <option value="April">April 2025</option>
+                    <option value="May">May 2025</option>
+                    <option value="June">June 2025</option>
+                    <option value="July">July 2025</option>
+                    <option value="August">August 2025</option>
+                    <option value="October">October 2025</option>
+                </select>
+                <div class="filter-badge" id="filterBadge">Showing: Year to Date</div>
+            </div>
+        </div>
+
         <!-- Year to Date Summary -->
-        <h2 class="section-title">📊 Year to Date Performance</h2>
-        <p class="section-subtitle">January - October 2025 | Cumulative recruitment metrics</p>
+        <h2 class="section-title">📊 Performance Summary</h2>
+        <p class="section-subtitle" id="summarySubtitle">January - October 2025 | Cumulative recruitment metrics</p>
         <div class="ytd-grid" id="ytdMetrics"></div>
 
         <!-- Recruiter Performance -->
         <h2 class="section-title">👥 Recruiter Performance</h2>
-        <p class="section-subtitle">Individual contributions and key metrics</p>
+        <p class="section-subtitle" id="recruiterSubtitle">Individual contributions and key metrics</p>
         <div class="recruiter-grid" id="recruiterCards"></div>
 
         <!-- Monthly KPIs -->
-        <h2 class="section-title">📅 Monthly KPIs & Targets</h2>
-        <p class="section-subtitle">Current month performance against goals</p>
+        <h2 class="section-title" id="kpiTitle">📅 Monthly KPIs & Targets</h2>
+        <p class="section-subtitle" id="kpiSubtitle">Current month performance against goals</p>
         <div class="monthly-kpi-grid" id="monthlyKPIs"></div>
-
-        <!-- Monthly Performance Table -->
-        <div class="table-card" id="monthlyTable"></div>
 
         <!-- Performance Charts -->
         <h2 class="section-title">📈 Trend Analysis</h2>
         <p class="section-subtitle">Visual performance insights over time</p>
         <div class="charts-grid" id="chartsGrid"></div>
+
+        <!-- Monthly Performance Table -->
+        <div class="table-card" id="monthlyTable"></div>
 
         <!-- Weekly Targets -->
         <h2 class="section-title">🎯 Weekly Targets & Guidelines</h2>
@@ -666,15 +748,18 @@
     </div>
 
     <script>
-        // Data storage
+        // Global data storage
         let dashboardData = {
             hiring: null,
             status: null,
             job: null,
             interviews: null,
+            rawInterviews: null,
             recruiters: null,
             monthlyData: null
         };
+
+        let currentFilter = 'ytd';
 
         // Solvo Global brand colors
         const solvoColors = {
@@ -702,17 +787,6 @@
                 'Apply > Hire': 0.017291,
                 'Offer > Rejected': 0.005714
             },
-            status: [
-                { 'Application State': 'Sent Documents', Applicants: 70 },
-                { 'Application State': 'New', Applicants: 50 },
-                { 'Application State': 'Not Qualified', Applicants: 38 },
-                { 'Application State': 'Documents Signed', Applicants: 36 },
-                { 'Application State': 'Sent Application', Applicants: 26 }
-            ],
-            job: [
-                { 'Job Title': 'Caregiver', Applicants: 225 },
-                { 'Job Title': 'Backup Childcare Provider', Applicants: 122 }
-            ],
             recruiters: [
                 {
                     name: 'Mariana Arévalo',
@@ -743,6 +817,29 @@
                 { month: 'October', interviews: 5, success: 3, successRate: 60.0, noShows: 0, hires: 1 }
             ]
         };
+
+        // Apply filter
+        function applyFilter() {
+            const filter = document.getElementById('periodFilter').value;
+            currentFilter = filter;
+            
+            const badge = document.getElementById('filterBadge');
+            badge.textContent = filter === 'ytd' ? 'Showing: Year to Date' : `Showing: ${filter} 2025`;
+            
+            renderDashboard();
+        }
+
+        // Filter data by month
+        function filterDataByMonth(month, rawInterviews) {
+            if (month === 'ytd' || !rawInterviews) return null;
+            
+            return rawInterviews.filter(interview => {
+                const date = new Date(interview['Interview Timestamp']);
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                  'July', 'August', 'September', 'October', 'November', 'December'];
+                return monthNames[date.getMonth()] === month;
+            });
+        }
 
         // File reading
         function readExcelFile(file) {
@@ -786,8 +883,7 @@
                 }
                 if (files.interview) {
                     const data = await readExcelFile(files.interview);
-                    dashboardData.interviews = data;
-                    dashboardData.recruiters = processRecruiterData(data);
+                    dashboardData.rawInterviews = data;
                     dashboardData.monthlyData = processMonthlyData(data);
                 }
 
@@ -837,7 +933,7 @@
             
             return Object.values(recruiterMap).map(r => ({
                 ...r,
-                successRate: ((r.documentsSignedOrBetter / r.interviews) * 100).toFixed(1)
+                successRate: r.interviews > 0 ? ((r.documentsSignedOrBetter / r.interviews) * 100).toFixed(1) : 0
             }));
         }
 
@@ -871,62 +967,110 @@
             
             return Object.values(monthMap).map(m => ({
                 ...m,
-                successRate: ((m.success / m.interviews) * 100).toFixed(1)
+                successRate: m.interviews > 0 ? ((m.success / m.interviews) * 100).toFixed(1) : 0
             }));
         }
 
-        // Render YTD metrics
-        function renderYTDMetrics(data) {
-            const totalInterviews = data.Interviews;
-            const totalHires = data.Hires;
-            const applyToInterview = data['Apply > Interview'] * 100;
-            const interviewToOffer = data['Interview > Offer'] * 100;
-            const overallConversion = data['Apply > Hire'] * 100;
+        // Get filtered month data
+        function getFilteredMonthData(monthlyData, filter) {
+            if (filter === 'ytd') return null;
+            return monthlyData.find(m => m.month === filter);
+        }
 
-            const metrics = [
-                { 
-                    label: 'Total Applicants', 
-                    value: data.Applicants, 
-                    subtitle: 'Candidates in pipeline',
-                    badge: 'excellent',
-                    badgeText: '✓ Strong Pipeline'
-                },
-                { 
-                    label: 'Interviews Scheduled', 
-                    value: totalInterviews, 
-                    subtitle: 'Candidate touchpoints',
-                    badge: 'excellent',
-                    badgeText: '✓ High Activity'
-                },
-                { 
-                    label: 'Offers Extended', 
-                    value: data.Offers, 
-                    subtitle: 'Job proposals made',
-                    badge: 'excellent',
-                    badgeText: '🎯 Strong Flow'
-                },
-                { 
-                    label: 'Successful Hires', 
-                    value: totalHires, 
-                    subtitle: 'Positions filled',
-                    badge: 'good',
-                    badgeText: '✓ Good'
-                },
-                { 
-                    label: 'Interview Conversion', 
-                    value: interviewToOffer.toFixed(1) + '%',
-                    subtitle: 'Interview → Offer rate',
-                    badge: interviewToOffer > 70 ? 'excellent' : 'good',
-                    badgeText: interviewToOffer > 70 ? '🏆 Excellent' : '✓ Good'
-                },
-                { 
-                    label: 'Overall Success Rate', 
-                    value: overallConversion.toFixed(1) + '%',
-                    subtitle: 'Apply → Hire rate',
-                    badge: overallConversion >= 7 ? 'good' : 'warning',
-                    badgeText: overallConversion >= 7 ? '✓ On Track' : '📊 Improving'
-                }
-            ];
+        // Render YTD metrics
+        function renderYTDMetrics(data, filter, monthData) {
+            let metrics;
+            
+            if (filter === 'ytd') {
+                const totalInterviews = data.Interviews;
+                const totalHires = data.Hires;
+                const interviewToOffer = data['Interview > Offer'] * 100;
+                const overallConversion = data['Apply > Hire'] * 100;
+
+                metrics = [
+                    { 
+                        label: 'Total Applicants', 
+                        value: data.Applicants, 
+                        subtitle: 'Candidates in pipeline',
+                        badge: 'excellent',
+                        badgeText: '✓ Strong Pipeline'
+                    },
+                    { 
+                        label: 'Interviews Scheduled', 
+                        value: totalInterviews, 
+                        subtitle: 'Candidate touchpoints',
+                        badge: 'excellent',
+                        badgeText: '✓ High Activity'
+                    },
+                    { 
+                        label: 'Offers Extended', 
+                        value: data.Offers, 
+                        subtitle: 'Job proposals made',
+                        badge: 'excellent',
+                        badgeText: '🎯 Strong Flow'
+                    },
+                    { 
+                        label: 'Successful Hires', 
+                        value: totalHires, 
+                        subtitle: 'Positions filled',
+                        badge: 'good',
+                        badgeText: '✓ Good'
+                    },
+                    { 
+                        label: 'Interview Conversion', 
+                        value: interviewToOffer.toFixed(1) + '%',
+                        subtitle: 'Interview → Offer rate',
+                        badge: interviewToOffer > 70 ? 'excellent' : 'good',
+                        badgeText: interviewToOffer > 70 ? '🏆 Excellent' : '✓ Good'
+                    },
+                    { 
+                        label: 'Overall Success Rate', 
+                        value: overallConversion.toFixed(1) + '%',
+                        subtitle: 'Apply → Hire rate',
+                        badge: overallConversion >= 7 ? 'good' : 'warning',
+                        badgeText: overallConversion >= 7 ? '✓ On Track' : '📊 Improving'
+                    }
+                ];
+            } else {
+                // Single month view
+                metrics = [
+                    { 
+                        label: 'Interviews Scheduled', 
+                        value: monthData.interviews, 
+                        subtitle: 'Total interviews',
+                        badge: monthData.interviews >= 20 ? 'excellent' : monthData.interviews >= 15 ? 'good' : 'warning',
+                        badgeText: monthData.interviews >= 20 ? '✓ Target Met' : monthData.interviews >= 15 ? 'Near Target' : 'Below Target'
+                    },
+                    { 
+                        label: 'Successful Outcomes', 
+                        value: monthData.success, 
+                        subtitle: 'Advanced to next stage',
+                        badge: 'good',
+                        badgeText: '✓ Good'
+                    },
+                    { 
+                        label: 'Hires', 
+                        value: monthData.hires || 0, 
+                        subtitle: 'Positions filled',
+                        badge: (monthData.hires || 0) >= 2 ? 'excellent' : (monthData.hires || 0) >= 1 ? 'good' : 'warning',
+                        badgeText: (monthData.hires || 0) >= 2 ? '✓ Target Met' : (monthData.hires || 0) >= 1 ? 'Good' : 'In Progress'
+                    },
+                    { 
+                        label: 'Success Rate', 
+                        value: monthData.successRate + '%',
+                        subtitle: 'Conversion percentage',
+                        badge: parseFloat(monthData.successRate) >= 50 ? 'excellent' : parseFloat(monthData.successRate) >= 40 ? 'good' : 'warning',
+                        badgeText: parseFloat(monthData.successRate) >= 50 ? '🏆 Excellent' : parseFloat(monthData.successRate) >= 40 ? '✓ Good' : 'Building'
+                    },
+                    { 
+                        label: 'No-Shows', 
+                        value: monthData.noShows, 
+                        subtitle: 'Missed interviews',
+                        badge: monthData.noShows === 0 ? 'excellent' : monthData.noShows <= 2 ? 'good' : 'warning',
+                        badgeText: monthData.noShows === 0 ? '🏆 Perfect' : monthData.noShows <= 2 ? '✓ Good' : 'Monitor'
+                    }
+                ];
+            }
 
             const html = metrics.map(m => `
                 <div class="ytd-card">
@@ -944,7 +1088,7 @@
         function renderRecruiterCards(recruiters) {
             const html = recruiters.map(r => {
                 const initials = r.name.split(' ').map(n => n[0]).join('');
-                const noShowRate = ((r.noShows / r.interviews) * 100).toFixed(1);
+                const noShowRate = r.interviews > 0 ? ((r.noShows / r.interviews) * 100).toFixed(1) : 0;
                 
                 return `
                     <div class="recruiter-card">
@@ -952,7 +1096,6 @@
                             <div class="recruiter-avatar">${initials}</div>
                             <div class="recruiter-info">
                                 <h3>${r.name}</h3>
-                                <p>Recruitment Specialist</p>
                             </div>
                         </div>
                         <div class="recruiter-stats">
@@ -981,10 +1124,17 @@
         }
 
         // Render monthly KPIs
-        function renderMonthlyKPIs(monthlyData) {
-            const currentMonth = monthlyData[monthlyData.length - 1];
-            const previousMonth = monthlyData[monthlyData.length - 2] || currentMonth;
-            const avgInterviews = (monthlyData.reduce((sum, m) => sum + m.interviews, 0) / monthlyData.length).toFixed(1);
+        function renderMonthlyKPIs(monthData, filter) {
+            if (filter === 'ytd') {
+                document.getElementById('monthlyKPIs').style.display = 'none';
+                document.getElementById('kpiTitle').style.display = 'none';
+                document.getElementById('kpiSubtitle').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('monthlyKPIs').style.display = 'grid';
+            document.getElementById('kpiTitle').style.display = 'flex';
+            document.getElementById('kpiSubtitle').style.display = 'block';
 
             const monthlyTarget = 20;
             const successTarget = 50;
@@ -993,35 +1143,27 @@
             const kpis = [
                 {
                     title: 'Interviews This Month',
-                    value: currentMonth.interviews,
+                    value: monthData.interviews,
                     target: `Target: ${monthlyTarget}`,
-                    progress: (currentMonth.interviews / monthlyTarget) * 100,
-                    status: currentMonth.interviews >= monthlyTarget ? 'excellent' : currentMonth.interviews >= 15 ? 'good' : 'average',
-                    statusText: currentMonth.interviews >= monthlyTarget ? '✓ Target Met' : currentMonth.interviews >= 15 ? 'Near Target' : 'In Progress'
+                    progress: (monthData.interviews / monthlyTarget) * 100,
+                    status: monthData.interviews >= monthlyTarget ? 'excellent' : monthData.interviews >= 15 ? 'good' : 'average',
+                    statusText: monthData.interviews >= monthlyTarget ? '✓ Target Met' : monthData.interviews >= 15 ? 'Near Target' : 'In Progress'
                 },
                 {
                     title: 'Success Rate',
-                    value: currentMonth.successRate + '%',
+                    value: monthData.successRate + '%',
                     target: `Target: ${successTarget}%`,
-                    progress: parseFloat(currentMonth.successRate),
-                    status: parseFloat(currentMonth.successRate) >= successTarget ? 'excellent' : parseFloat(currentMonth.successRate) >= 40 ? 'good' : 'average',
-                    statusText: parseFloat(currentMonth.successRate) >= successTarget ? '🏆 Exceeding' : parseFloat(currentMonth.successRate) >= 40 ? '✓ Good' : 'Building'
+                    progress: parseFloat(monthData.successRate),
+                    status: parseFloat(monthData.successRate) >= successTarget ? 'excellent' : parseFloat(monthData.successRate) >= 40 ? 'good' : 'average',
+                    statusText: parseFloat(monthData.successRate) >= successTarget ? '🏆 Exceeding' : parseFloat(monthData.successRate) >= 40 ? '✓ Good' : 'Building'
                 },
                 {
                     title: 'Hires This Month',
-                    value: currentMonth.hires || 0,
+                    value: monthData.hires || 0,
                     target: `Target: ${hiresTarget}`,
-                    progress: ((currentMonth.hires || 0) / hiresTarget) * 100,
-                    status: (currentMonth.hires || 0) >= hiresTarget ? 'excellent' : (currentMonth.hires || 0) >= 1 ? 'good' : 'average',
-                    statusText: (currentMonth.hires || 0) >= hiresTarget ? '✓ Target Met' : (currentMonth.hires || 0) >= 1 ? 'On Track' : 'In Progress'
-                },
-                {
-                    title: 'Monthly Average (YTD)',
-                    value: avgInterviews,
-                    target: 'Avg interviews/month',
-                    progress: (parseFloat(avgInterviews) / 20) * 100,
-                    status: parseFloat(avgInterviews) >= 15 ? 'excellent' : 'good',
-                    statusText: parseFloat(avgInterviews) >= 15 ? '✓ Strong' : '✓ Growing'
+                    progress: ((monthData.hires || 0) / hiresTarget) * 100,
+                    status: (monthData.hires || 0) >= hiresTarget ? 'excellent' : (monthData.hires || 0) >= 1 ? 'good' : 'average',
+                    statusText: (monthData.hires || 0) >= hiresTarget ? '✓ Target Met' : (monthData.hires || 0) >= 1 ? 'On Track' : 'In Progress'
                 }
             ];
 
@@ -1197,7 +1339,7 @@
                             display: true,
                             position: 'top',
                             labels: {
-                                font: { size: 13, family: 'Inter' },
+                                font: { size: 13, family: 'Inter', weight: '500' },
                                 padding: 15,
                                 usePointStyle: true
                             }
@@ -1247,7 +1389,7 @@
                             display: true,
                             position: 'top',
                             labels: {
-                                font: { size: 13, family: 'Inter' },
+                                font: { size: 13, family: 'Inter', weight: '500' },
                                 padding: 15,
                                 usePointStyle: true
                             }
@@ -1271,14 +1413,41 @@
         // Main render function
         function renderDashboard() {
             const hiring = dashboardData.hiring || defaultData.hiring;
-            const recruiters = dashboardData.recruiters || defaultData.recruiters;
             const monthlyData = dashboardData.monthlyData || defaultData.monthlyData;
-
-            renderYTDMetrics(hiring);
+            const rawInterviews = dashboardData.rawInterviews;
+            
+            // Get filtered data
+            let filteredInterviews, recruiters;
+            
+            if (currentFilter === 'ytd') {
+                filteredInterviews = rawInterviews || [];
+                recruiters = rawInterviews ? processRecruiterData(rawInterviews) : defaultData.recruiters;
+                
+                document.getElementById('summarySubtitle').textContent = 'January - October 2025 | Cumulative recruitment metrics';
+                document.getElementById('recruiterSubtitle').textContent = 'Individual contributions and key metrics';
+            } else {
+                filteredInterviews = rawInterviews ? filterDataByMonth(currentFilter, rawInterviews) : [];
+                recruiters = filteredInterviews.length > 0 ? processRecruiterData(filteredInterviews) : [];
+                
+                const monthData = getFilteredMonthData(monthlyData, currentFilter);
+                
+                document.getElementById('summarySubtitle').textContent = `${currentFilter} 2025 performance metrics`;
+                document.getElementById('recruiterSubtitle').textContent = `Performance for ${currentFilter} 2025`;
+                
+                renderYTDMetrics(hiring, currentFilter, monthData);
+                renderMonthlyKPIs(monthData, currentFilter);
+            }
+            
+            if (currentFilter === 'ytd') {
+                renderYTDMetrics(hiring, currentFilter, null);
+                document.getElementById('monthlyKPIs').style.display = 'none';
+                document.getElementById('kpiTitle').style.display = 'none';
+                document.getElementById('kpiSubtitle').style.display = 'none';
+            }
+            
             renderRecruiterCards(recruiters);
-            renderMonthlyKPIs(monthlyData);
+            renderCharts(monthlyData, recruiters.length > 0 ? recruiters : defaultData.recruiters);
             renderMonthlyTable(monthlyData);
-            renderCharts(monthlyData, recruiters);
             renderWeeklyTable();
         }
 
