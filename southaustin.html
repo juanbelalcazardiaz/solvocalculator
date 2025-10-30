@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment Dashboard - YTD 2025</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2rem 2rem 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .upload-section {
+            background: white;
+            margin: 2rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section h2 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            color: var(--text-primary);
+        }
+
+        .file-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .file-upload-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .file-upload-item label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .file-upload-item input[type="file"] {
+            padding: 0.5rem;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .file-upload-item input[type="file"]:hover {
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .dashboard {
+            padding: 0 2rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            color: var(--success-color);
+            font-weight: 500;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .table-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: var(--bg-color);
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover {
+            background: var(--bg-color);
+        }
+
+        .conversion-rate {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .rate-high {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .rate-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .rate-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.5rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .dashboard {
+                padding: 0 1rem 1rem;
+            }
+
+            .upload-section {
+                margin: 1rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Recruitment Dashboard</h1>
+        <p>Year to Date Report - January 2025 to Present | Synergy HomeCare</p>
+    </div>
+
+    <div class="upload-section">
+        <h2>📁 Import Excel Files</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Upload your recruitment data files to update the dashboard</p>
+        <div class="file-upload-grid">
+            <div class="file-upload-item">
+                <label>Hiring Totals & Conversion</label>
+                <input type="file" id="hiringFile" accept=".xlsx,.xls">
+            </div>
+            <div class="file-upload-item">
+                <label>Applicants by Status</label>
+                <input type="file" id="statusFile" accept=".xlsx,.xls">
+            </div>
+            <div class="file-upload-item">
+                <label>Applicants by Job</label>
+                <input type="file" id="jobFile" accept=".xlsx,.xls">
+            </div>
+            <div class="file-upload-item">
+                <label>Scheduled Interviews</label>
+                <input type="file" id="interviewFile" accept=".xlsx,.xls">
+            </div>
+        </div>
+        <button class="btn" onclick="loadAllData()">🔄 Refresh Dashboard</button>
+    </div>
+
+    <div class="dashboard">
+        <div class="metrics-grid" id="metricsGrid"></div>
+        <div class="charts-grid" id="chartsGrid"></div>
+        <div class="table-card" id="conversionTable"></div>
+        <div class="table-card" id="statusTable"></div>
+    </div>
+
+    <script>
+        // Data storage
+        let dashboardData = {
+            hiring: null,
+            status: null,
+            job: null,
+            interviews: null
+        };
+
+        // Initialize with default data
+        const defaultData = {
+            hiring: {
+                Parent: 'Synergy HomeCare',
+                Applicants: 347,
+                Interviews: 205,
+                Offers: 175,
+                Hires: 6,
+                'Offers Rejected': 1,
+                'Apply > Interview': 0.590778,
+                'Interview > Offer': 0.853659,
+                'Offer > Hire': 0.034286,
+                'Interview > Hire': 0.029268,
+                'Apply > Hire': 0.017291,
+                'Offer > Rejected': 0.005714
+            },
+            status: [
+                { 'Application State': 'Sent Documents', Applicants: 70 },
+                { 'Application State': 'New', Applicants: 50 },
+                { 'Application State': 'Not Qualified', Applicants: 38 },
+                { 'Application State': 'Documents Signed', Applicants: 36 },
+                { 'Application State': 'Sent Application', Applicants: 26 },
+                { 'Application State': 'Viewed', Applicants: 20 },
+                { 'Application State': 'Interview No-Show', Applicants: 18 },
+                { 'Application State': 'Requested Interview', Applicants: 14 },
+                { 'Application State': 'In Communication', Applicants: 12 },
+                { 'Application State': '2nd Contact Attempted', Applicants: 12 }
+            ],
+            job: [
+                { 'Job Title': 'Caregiver', Applicants: 225 },
+                { 'Job Title': 'Backup Childcare Provider', Applicants: 122 }
+            ]
+        };
+
+        // File reading function
+        function readExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        resolve(jsonData);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Load all data
+        async function loadAllData() {
+            const hiringFile = document.getElementById('hiringFile').files[0];
+            const statusFile = document.getElementById('statusFile').files[0];
+            const jobFile = document.getElementById('jobFile').files[0];
+            const interviewFile = document.getElementById('interviewFile').files[0];
+
+            try {
+                if (hiringFile) {
+                    const data = await readExcelFile(hiringFile);
+                    dashboardData.hiring = data[0]; // First row contains the data
+                }
+                if (statusFile) {
+                    dashboardData.status = await readExcelFile(statusFile);
+                }
+                if (jobFile) {
+                    dashboardData.job = await readExcelFile(jobFile);
+                }
+                if (interviewFile) {
+                    dashboardData.interviews = await readExcelFile(interviewFile);
+                }
+
+                renderDashboard();
+                alert('✅ Dashboard updated successfully!');
+            } catch (error) {
+                console.error('Error loading files:', error);
+                alert('❌ Error loading files. Please check the file format.');
+            }
+        }
+
+        // Render metrics
+        function renderMetrics(data) {
+            const metrics = [
+                { label: 'Total Applicants', value: data.Applicants, icon: '👥' },
+                { label: 'Interviews', value: data.Interviews, icon: '🗣️' },
+                { label: 'Offers', value: data.Offers, icon: '📄' },
+                { label: 'Hires', value: data.Hires, icon: '✅' },
+                { label: 'Apply → Interview', value: (data['Apply > Interview'] * 100).toFixed(1) + '%', icon: '📊' },
+                { label: 'Interview → Offer', value: (data['Interview > Offer'] * 100).toFixed(1) + '%', icon: '📈' }
+            ];
+
+            const html = metrics.map(m => `
+                <div class="metric-card">
+                    <div class="metric-label">${m.icon} ${m.label}</div>
+                    <div class="metric-value">${m.value}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('metricsGrid').innerHTML = html;
+        }
+
+        // Render charts
+        function renderCharts(statusData, jobData, hiringData) {
+            const chartsHtml = `
+                <div class="chart-card">
+                    <h3>Applicants by Status</h3>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Applicants by Job Title</h3>
+                    <div class="chart-container">
+                        <canvas id="jobChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Recruitment Funnel</h3>
+                    <div class="chart-container">
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Conversion Rates</h3>
+                    <div class="chart-container">
+                        <canvas id="conversionChart"></canvas>
+                    </div>
+                </div>
+            `;
+            document.getElementById('chartsGrid').innerHTML = chartsHtml;
+
+            // Status Chart
+            const topStatuses = statusData.slice(0, 10);
+            new Chart(document.getElementById('statusChart'), {
+                type: 'bar',
+                data: {
+                    labels: topStatuses.map(s => s['Application State']),
+                    datasets: [{
+                        label: 'Applicants',
+                        data: topStatuses.map(s => s.Applicants),
+                        backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Job Chart
+            new Chart(document.getElementById('jobChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: jobData.map(j => j['Job Title']),
+                    datasets: [{
+                        data: jobData.map(j => j.Applicants),
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Funnel Chart
+            new Chart(document.getElementById('funnelChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Applicants', 'Interviews', 'Offers', 'Hires'],
+                    datasets: [{
+                        label: 'Count',
+                        data: [
+                            hiringData.Applicants,
+                            hiringData.Interviews,
+                            hiringData.Offers,
+                            hiringData.Hires
+                        ],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(147, 197, 253, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Conversion Chart
+            new Chart(document.getElementById('conversionChart'), {
+                type: 'line',
+                data: {
+                    labels: [
+                        'Apply → Interview',
+                        'Interview → Offer',
+                        'Offer → Hire',
+                        'Apply → Hire'
+                    ],
+                    datasets: [{
+                        label: 'Conversion Rate (%)',
+                        data: [
+                            (hiringData['Apply > Interview'] * 100).toFixed(1),
+                            (hiringData['Interview > Offer'] * 100).toFixed(1),
+                            (hiringData['Offer > Hire'] * 100).toFixed(1),
+                            (hiringData['Apply > Hire'] * 100).toFixed(1)
+                        ],
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => value + '%'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render conversion table
+        function renderConversionTable(data) {
+            const getRateClass = (rate) => {
+                if (rate > 50) return 'rate-high';
+                if (rate > 20) return 'rate-medium';
+                return 'rate-low';
+            };
+
+            const html = `
+                <h3>📈 Conversion Metrics</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Conversion Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Total Applicants</td>
+                            <td>${data.Applicants}</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>Interviews Conducted</td>
+                            <td>${data.Interviews}</td>
+                            <td><span class="conversion-rate ${getRateClass((data['Apply > Interview'] * 100))}">${(data['Apply > Interview'] * 100).toFixed(1)}%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Offers Made</td>
+                            <td>${data.Offers}</td>
+                            <td><span class="conversion-rate ${getRateClass((data['Interview > Offer'] * 100))}">${(data['Interview > Offer'] * 100).toFixed(1)}%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Successful Hires</td>
+                            <td>${data.Hires}</td>
+                            <td><span class="conversion-rate ${getRateClass((data['Offer > Hire'] * 100))}">${(data['Offer > Hire'] * 100).toFixed(1)}%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Offers Rejected</td>
+                            <td>${data['Offers Rejected']}</td>
+                            <td><span class="conversion-rate ${getRateClass((data['Offer > Rejected'] * 100))}">${(data['Offer > Rejected'] * 100).toFixed(1)}%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Overall Apply → Hire</strong></td>
+                            <td><strong>${data.Hires}</strong></td>
+                            <td><span class="conversion-rate ${getRateClass((data['Apply > Hire'] * 100))}">${(data['Apply > Hire'] * 100).toFixed(1)}%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('conversionTable').innerHTML = html;
+        }
+
+        // Render status table
+        function renderStatusTable(data) {
+            const html = `
+                <h3>📋 Applicants by Status</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Application State</th>
+                            <th>Number of Applicants</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(item => {
+                            const total = data.reduce((sum, d) => sum + d.Applicants, 0);
+                            const percentage = ((item.Applicants / total) * 100).toFixed(1);
+                            return `
+                                <tr>
+                                    <td>${item['Application State']}</td>
+                                    <td>${item.Applicants}</td>
+                                    <td>${percentage}%</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('statusTable').innerHTML = html;
+        }
+
+        // Main render function
+        function renderDashboard() {
+            const hiring = dashboardData.hiring || defaultData.hiring;
+            const status = dashboardData.status || defaultData.status;
+            const job = dashboardData.job || defaultData.job;
+
+            renderMetrics(hiring);
+            renderCharts(status, job, hiring);
+            renderConversionTable(hiring);
+            renderStatusTable(status);
+        }
+
+        // Initialize dashboard on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDashboard();
+        });
+    </script>
+</body>
+</html>
