@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment Performance Dashboard | Solvo Global</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Solvo Global Brand Colors */
+            --solvo-orange: #F09F54;
+            --solvo-orange-light: #F7C08A;
+            --solvo-orange-dark: #E88A3A;
+            --primary-color: #F09F54;
+            --secondary-color: #E88A3A;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #F09F54 0%, #E88A3A 100%);
+            color: white;
+            padding: 2.5rem 2rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .brand-logo {
+            background: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--solvo-orange);
+            letter-spacing: -0.02em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .header-subtitle {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .upload-section {
+            background: white;
+            margin: 2rem;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .upload-section h2 {
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .upload-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
+            font-size: 0.875rem;
+        }
+
+        .file-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .file-upload-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .file-upload-item label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .file-upload-item input[type="file"] {
+            padding: 0.625rem;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .file-upload-item input[type="file"]:hover {
+            border-color: var(--solvo-orange);
+            background-color: #fffbf6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--solvo-orange) 0%, var(--solvo-orange-dark) 100%);
+            color: white;
+            padding: 0.75rem 1.75rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            transition: all 0.2s;
+            margin-top: 1.25rem;
+            box-shadow: 0 2px 8px rgba(240, 159, 84, 0.3);
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(240, 159, 84, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .dashboard {
+            padding: 0 2rem 3rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.25rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            letter-spacing: -0.03em;
+        }
+
+        .section-subtitle {
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+            margin-top: -0.75rem;
+            margin-bottom: 1.25rem;
+            font-weight: 500;
+        }
+
+        /* Recruiter Performance Cards */
+        .recruiter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .recruiter-card {
+            background: var(--card-bg);
+            padding: 1.75rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .recruiter-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .recruiter-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .recruiter-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--solvo-orange), var(--solvo-orange-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 12px rgba(240, 159, 84, 0.3);
+        }
+
+        .recruiter-info h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .recruiter-info p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .recruiter-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .recruiter-stat {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .recruiter-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .recruiter-stat-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        /* YTD Summary Cards */
+        .ytd-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .ytd-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .ytd-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .ytd-label {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .ytd-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.04em;
+        }
+
+        .ytd-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .ytd-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-top: 0.75rem;
+        }
+
+        .ytd-badge.excellent {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .ytd-badge.good {
+            background: #FEF3E2;
+            color: #92400e;
+        }
+
+        .ytd-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Monthly KPI Cards */
+        .monthly-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .monthly-kpi-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .monthly-kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .monthly-kpi-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .monthly-kpi-status {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .monthly-kpi-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--solvo-orange-dark);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .monthly-kpi-target {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .monthly-kpi-progress {
+            margin-top: 1rem;
+            height: 8px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .monthly-kpi-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--solvo-orange), var(--solvo-orange-dark));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* Tables */
+        .table-card {
+            background: var(--card-bg);
+            padding: 1.75rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        .table-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: var(--bg-color);
+        }
+
+        th {
+            text-align: left;
+            padding: 0.875rem 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-color);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.375rem 0.875rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .status-badge.excellent {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.good {
+            background: #FEF3E2;
+            color: #92400e;
+        }
+
+        .status-badge.average {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.poor {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 1.75rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 340px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2.5rem 2rem;
+            background: white;
+            margin-top: 3rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--solvo-orange);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .footer-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.75rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .dashboard {
+                padding: 0 1rem 2rem;
+            }
+
+            .upload-section {
+                margin: 1rem;
+            }
+
+            .ytd-grid,
+            .monthly-kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recruiter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <div class="brand-logo">SOLVO</div>
+            </div>
+            <h1>Recruitment Performance Dashboard</h1>
+            <p>Year to Date 2025 - Team Excellence & Impact</p>
+            <div class="header-subtitle">Synergy HomeCare | Operations by Solvo Global</div>
+        </div>
+    </div>
+
+    <div class="upload-section">
+        <h2>Import Data Files</h2>
+        <p>Upload your recruitment Excel files to refresh the dashboard metrics</p>
+        <div class="file-upload-grid">
+            <div class="file-upload-item">
+                <label>Hiring Totals & Conversion</label>
+                <input type="file" id="hiringFile" accept=".xlsx,.xls">
+            </div>
+            <div class="file-upload-item">
+                <label>Applicants by Status</label>
+                <input type="file" id="statusFile" accept=".xlsx,.xls">
+            </div>
+            <div class="file-upload-item">
+                <label>Applicants by Job</label>
+                <input type="file" id="jobFile" accept=".xlsx,.xls">
+            </div>
+            <div class="file-upload-item">
+                <label>Scheduled Interviews</label>
+                <input type="file" id="interviewFile" accept=".xlsx,.xls">
+            </div>
+        </div>
+        <button class="btn" onclick="loadAllData()">Refresh Dashboard</button>
+    </div>
+
+    <div class="dashboard">
+        <!-- Year to Date Summary -->
+        <h2 class="section-title">📊 Year to Date Performance</h2>
+        <p class="section-subtitle">January - October 2025 | Cumulative recruitment metrics</p>
+        <div class="ytd-grid" id="ytdMetrics"></div>
+
+        <!-- Recruiter Performance -->
+        <h2 class="section-title">👥 Recruiter Performance</h2>
+        <p class="section-subtitle">Individual contributions and key metrics</p>
+        <div class="recruiter-grid" id="recruiterCards"></div>
+
+        <!-- Monthly KPIs -->
+        <h2 class="section-title">📅 Monthly KPIs & Targets</h2>
+        <p class="section-subtitle">Current month performance against goals</p>
+        <div class="monthly-kpi-grid" id="monthlyKPIs"></div>
+
+        <!-- Monthly Performance Table -->
+        <div class="table-card" id="monthlyTable"></div>
+
+        <!-- Performance Charts -->
+        <h2 class="section-title">📈 Trend Analysis</h2>
+        <p class="section-subtitle">Visual performance insights over time</p>
+        <div class="charts-grid" id="chartsGrid"></div>
+
+        <!-- Weekly Targets -->
+        <h2 class="section-title">🎯 Weekly Targets & Guidelines</h2>
+        <p class="section-subtitle">Standard operating targets for recruitment activities</p>
+        <div class="table-card" id="weeklyTable"></div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-brand">SOLVO GLOBAL</div>
+        <div class="footer-text">Bringing You a World of Talent</div>
+        <div class="footer-text" style="margin-top: 0.375rem;">© 2025 Solvo Global. All rights reserved.</div>
+    </div>
+
+    <script>
+        // Data storage
+        let dashboardData = {
+            hiring: null,
+            status: null,
+            job: null,
+            interviews: null,
+            recruiters: null,
+            monthlyData: null
+        };
+
+        // Solvo Global brand colors
+        const solvoColors = {
+            primary: '#F09F54',
+            primaryLight: '#F7C08A',
+            primaryDark: '#E88A3A',
+            success: '#10b981',
+            info: '#3b82f6',
+            warning: '#f59e0b'
+        };
+
+        // Default data
+        const defaultData = {
+            hiring: {
+                Parent: 'Synergy HomeCare',
+                Applicants: 347,
+                Interviews: 205,
+                Offers: 175,
+                Hires: 6,
+                'Offers Rejected': 1,
+                'Apply > Interview': 0.590778,
+                'Interview > Offer': 0.853659,
+                'Offer > Hire': 0.034286,
+                'Interview > Hire': 0.029268,
+                'Apply > Hire': 0.017291,
+                'Offer > Rejected': 0.005714
+            },
+            status: [
+                { 'Application State': 'Sent Documents', Applicants: 70 },
+                { 'Application State': 'New', Applicants: 50 },
+                { 'Application State': 'Not Qualified', Applicants: 38 },
+                { 'Application State': 'Documents Signed', Applicants: 36 },
+                { 'Application State': 'Sent Application', Applicants: 26 }
+            ],
+            job: [
+                { 'Job Title': 'Caregiver', Applicants: 225 },
+                { 'Job Title': 'Backup Childcare Provider', Applicants: 122 }
+            ],
+            recruiters: [
+                {
+                    name: 'Mariana Arévalo',
+                    interviews: 73,
+                    hires: 4,
+                    sentDocuments: 21,
+                    noShows: 15,
+                    successRate: 46.3
+                },
+                {
+                    name: 'Yammile Gallegos',
+                    interviews: 35,
+                    hires: 4,
+                    sentDocuments: 9,
+                    noShows: 3,
+                    successRate: 51.4
+                }
+            ],
+            monthlyData: [
+                { month: 'January', interviews: 5, success: 4, successRate: 80.0, noShows: 0, hires: 1 },
+                { month: 'February', interviews: 18, success: 9, successRate: 50.0, noShows: 3, hires: 1 },
+                { month: 'March', interviews: 17, success: 7, successRate: 41.2, noShows: 2, hires: 0 },
+                { month: 'April', interviews: 21, success: 11, successRate: 52.4, noShows: 5, hires: 2 },
+                { month: 'May', interviews: 18, success: 5, successRate: 27.8, noShows: 4, hires: 0 },
+                { month: 'June', interviews: 18, success: 9, successRate: 50.0, noShows: 1, hires: 1 },
+                { month: 'July', interviews: 3, success: 1, successRate: 33.3, noShows: 1, hires: 0 },
+                { month: 'August', interviews: 3, success: 1, successRate: 33.3, noShows: 0, hires: 0 },
+                { month: 'October', interviews: 5, success: 3, successRate: 60.0, noShows: 0, hires: 1 }
+            ]
+        };
+
+        // File reading
+        function readExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        resolve(jsonData);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // Load all data
+        async function loadAllData() {
+            const files = {
+                hiring: document.getElementById('hiringFile').files[0],
+                status: document.getElementById('statusFile').files[0],
+                job: document.getElementById('jobFile').files[0],
+                interview: document.getElementById('interviewFile').files[0]
+            };
+
+            try {
+                if (files.hiring) {
+                    const data = await readExcelFile(files.hiring);
+                    dashboardData.hiring = data[0];
+                }
+                if (files.status) {
+                    dashboardData.status = await readExcelFile(files.status);
+                }
+                if (files.job) {
+                    dashboardData.job = await readExcelFile(files.job);
+                }
+                if (files.interview) {
+                    const data = await readExcelFile(files.interview);
+                    dashboardData.interviews = data;
+                    dashboardData.recruiters = processRecruiterData(data);
+                    dashboardData.monthlyData = processMonthlyData(data);
+                }
+
+                renderDashboard();
+                alert('✅ Dashboard updated successfully!');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error loading files. Please check the file format.');
+            }
+        }
+
+        // Process recruiter data
+        function processRecruiterData(interviews) {
+            const recruiterMap = {};
+            
+            interviews.forEach(interview => {
+                const recruiter = interview['Job Owner'];
+                if (!recruiter) return;
+                
+                if (!recruiterMap[recruiter]) {
+                    recruiterMap[recruiter] = {
+                        name: recruiter,
+                        interviews: 0,
+                        hires: 0,
+                        sentDocuments: 0,
+                        documentsSignedOrBetter: 0,
+                        noShows: 0
+                    };
+                }
+                
+                recruiterMap[recruiter].interviews++;
+                
+                const status = interview['Current Applicant State'];
+                if (status === 'Hired' || status === 'Orientation Scheduled') {
+                    recruiterMap[recruiter].hires++;
+                }
+                if (status === 'Sent Documents') {
+                    recruiterMap[recruiter].sentDocuments++;
+                }
+                if (['Sent Documents', 'Documents Signed', 'Hired', 'Orientation Scheduled'].includes(status)) {
+                    recruiterMap[recruiter].documentsSignedOrBetter++;
+                }
+                if (status === 'Interview No-Show') {
+                    recruiterMap[recruiter].noShows++;
+                }
+            });
+            
+            return Object.values(recruiterMap).map(r => ({
+                ...r,
+                successRate: ((r.documentsSignedOrBetter / r.interviews) * 100).toFixed(1)
+            }));
+        }
+
+        // Process monthly data
+        function processMonthlyData(interviews) {
+            const monthMap = {};
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                              'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            interviews.forEach(interview => {
+                const date = new Date(interview['Interview Timestamp']);
+                const month = monthNames[date.getMonth()];
+                
+                if (!monthMap[month]) {
+                    monthMap[month] = { month, interviews: 0, success: 0, noShows: 0, hires: 0 };
+                }
+                
+                monthMap[month].interviews++;
+                
+                const status = interview['Current Applicant State'];
+                if (['Sent Documents', 'Documents Signed', 'Hired', 'Orientation Scheduled'].includes(status)) {
+                    monthMap[month].success++;
+                }
+                if (status === 'Hired' || status === 'Orientation Scheduled') {
+                    monthMap[month].hires++;
+                }
+                if (status === 'Interview No-Show') {
+                    monthMap[month].noShows++;
+                }
+            });
+            
+            return Object.values(monthMap).map(m => ({
+                ...m,
+                successRate: ((m.success / m.interviews) * 100).toFixed(1)
+            }));
+        }
+
+        // Render YTD metrics
+        function renderYTDMetrics(data) {
+            const totalInterviews = data.Interviews;
+            const totalHires = data.Hires;
+            const applyToInterview = data['Apply > Interview'] * 100;
+            const interviewToOffer = data['Interview > Offer'] * 100;
+            const overallConversion = data['Apply > Hire'] * 100;
+
+            const metrics = [
+                { 
+                    label: 'Total Applicants', 
+                    value: data.Applicants, 
+                    subtitle: 'Candidates in pipeline',
+                    badge: 'excellent',
+                    badgeText: '✓ Strong Pipeline'
+                },
+                { 
+                    label: 'Interviews Scheduled', 
+                    value: totalInterviews, 
+                    subtitle: 'Candidate touchpoints',
+                    badge: 'excellent',
+                    badgeText: '✓ High Activity'
+                },
+                { 
+                    label: 'Offers Extended', 
+                    value: data.Offers, 
+                    subtitle: 'Job proposals made',
+                    badge: 'excellent',
+                    badgeText: '🎯 Strong Flow'
+                },
+                { 
+                    label: 'Successful Hires', 
+                    value: totalHires, 
+                    subtitle: 'Positions filled',
+                    badge: 'good',
+                    badgeText: '✓ Good'
+                },
+                { 
+                    label: 'Interview Conversion', 
+                    value: interviewToOffer.toFixed(1) + '%',
+                    subtitle: 'Interview → Offer rate',
+                    badge: interviewToOffer > 70 ? 'excellent' : 'good',
+                    badgeText: interviewToOffer > 70 ? '🏆 Excellent' : '✓ Good'
+                },
+                { 
+                    label: 'Overall Success Rate', 
+                    value: overallConversion.toFixed(1) + '%',
+                    subtitle: 'Apply → Hire rate',
+                    badge: overallConversion >= 7 ? 'good' : 'warning',
+                    badgeText: overallConversion >= 7 ? '✓ On Track' : '📊 Improving'
+                }
+            ];
+
+            const html = metrics.map(m => `
+                <div class="ytd-card">
+                    <div class="ytd-label">${m.label}</div>
+                    <div class="ytd-value">${m.value}</div>
+                    <div class="ytd-subtitle">${m.subtitle}</div>
+                    <div class="ytd-badge ${m.badge}">${m.badgeText}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('ytdMetrics').innerHTML = html;
+        }
+
+        // Render recruiter cards
+        function renderRecruiterCards(recruiters) {
+            const html = recruiters.map(r => {
+                const initials = r.name.split(' ').map(n => n[0]).join('');
+                const noShowRate = ((r.noShows / r.interviews) * 100).toFixed(1);
+                
+                return `
+                    <div class="recruiter-card">
+                        <div class="recruiter-header">
+                            <div class="recruiter-avatar">${initials}</div>
+                            <div class="recruiter-info">
+                                <h3>${r.name}</h3>
+                                <p>Recruitment Specialist</p>
+                            </div>
+                        </div>
+                        <div class="recruiter-stats">
+                            <div class="recruiter-stat">
+                                <div class="recruiter-stat-label">Interviews</div>
+                                <div class="recruiter-stat-value">${r.interviews}</div>
+                            </div>
+                            <div class="recruiter-stat">
+                                <div class="recruiter-stat-label">Hires</div>
+                                <div class="recruiter-stat-value">${r.hires}</div>
+                            </div>
+                            <div class="recruiter-stat">
+                                <div class="recruiter-stat-label">Success Rate</div>
+                                <div class="recruiter-stat-value">${r.successRate}%</div>
+                            </div>
+                            <div class="recruiter-stat">
+                                <div class="recruiter-stat-label">No-Show Rate</div>
+                                <div class="recruiter-stat-value">${noShowRate}%</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('recruiterCards').innerHTML = html;
+        }
+
+        // Render monthly KPIs
+        function renderMonthlyKPIs(monthlyData) {
+            const currentMonth = monthlyData[monthlyData.length - 1];
+            const previousMonth = monthlyData[monthlyData.length - 2] || currentMonth;
+            const avgInterviews = (monthlyData.reduce((sum, m) => sum + m.interviews, 0) / monthlyData.length).toFixed(1);
+
+            const monthlyTarget = 20;
+            const successTarget = 50;
+            const hiresTarget = 2;
+
+            const kpis = [
+                {
+                    title: 'Interviews This Month',
+                    value: currentMonth.interviews,
+                    target: `Target: ${monthlyTarget}`,
+                    progress: (currentMonth.interviews / monthlyTarget) * 100,
+                    status: currentMonth.interviews >= monthlyTarget ? 'excellent' : currentMonth.interviews >= 15 ? 'good' : 'average',
+                    statusText: currentMonth.interviews >= monthlyTarget ? '✓ Target Met' : currentMonth.interviews >= 15 ? 'Near Target' : 'In Progress'
+                },
+                {
+                    title: 'Success Rate',
+                    value: currentMonth.successRate + '%',
+                    target: `Target: ${successTarget}%`,
+                    progress: parseFloat(currentMonth.successRate),
+                    status: parseFloat(currentMonth.successRate) >= successTarget ? 'excellent' : parseFloat(currentMonth.successRate) >= 40 ? 'good' : 'average',
+                    statusText: parseFloat(currentMonth.successRate) >= successTarget ? '🏆 Exceeding' : parseFloat(currentMonth.successRate) >= 40 ? '✓ Good' : 'Building'
+                },
+                {
+                    title: 'Hires This Month',
+                    value: currentMonth.hires || 0,
+                    target: `Target: ${hiresTarget}`,
+                    progress: ((currentMonth.hires || 0) / hiresTarget) * 100,
+                    status: (currentMonth.hires || 0) >= hiresTarget ? 'excellent' : (currentMonth.hires || 0) >= 1 ? 'good' : 'average',
+                    statusText: (currentMonth.hires || 0) >= hiresTarget ? '✓ Target Met' : (currentMonth.hires || 0) >= 1 ? 'On Track' : 'In Progress'
+                },
+                {
+                    title: 'Monthly Average (YTD)',
+                    value: avgInterviews,
+                    target: 'Avg interviews/month',
+                    progress: (parseFloat(avgInterviews) / 20) * 100,
+                    status: parseFloat(avgInterviews) >= 15 ? 'excellent' : 'good',
+                    statusText: parseFloat(avgInterviews) >= 15 ? '✓ Strong' : '✓ Growing'
+                }
+            ];
+
+            const html = kpis.map(kpi => `
+                <div class="monthly-kpi-card">
+                    <div class="monthly-kpi-header">
+                        <div class="monthly-kpi-title">${kpi.title}</div>
+                        <div class="monthly-kpi-status status-badge ${kpi.status}">${kpi.statusText}</div>
+                    </div>
+                    <div class="monthly-kpi-value">${kpi.value}</div>
+                    <div class="monthly-kpi-target">${kpi.target}</div>
+                    <div class="monthly-kpi-progress">
+                        <div class="monthly-kpi-progress-bar" style="width: ${Math.min(kpi.progress, 100)}%"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('monthlyKPIs').innerHTML = html;
+        }
+
+        // Render monthly table
+        function renderMonthlyTable(monthlyData) {
+            const getStatusClass = (rate) => {
+                if (rate >= 60) return 'excellent';
+                if (rate >= 45) return 'good';
+                if (rate >= 30) return 'average';
+                return 'poor';
+            };
+
+            const html = `
+                <h3>Monthly Performance Breakdown</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Interviews</th>
+                            <th>Successful Outcomes</th>
+                            <th>Hires</th>
+                            <th>Success Rate</th>
+                            <th>No-Shows</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${monthlyData.map(m => `
+                            <tr>
+                                <td><strong>${m.month}</strong></td>
+                                <td>${m.interviews}</td>
+                                <td>${m.success}</td>
+                                <td>${m.hires || 0}</td>
+                                <td><strong>${m.successRate}%</strong></td>
+                                <td>${m.noShows}</td>
+                                <td><span class="status-badge ${getStatusClass(parseFloat(m.successRate))}">${
+                                    parseFloat(m.successRate) >= 60 ? 'Excellent' :
+                                    parseFloat(m.successRate) >= 45 ? 'Good' :
+                                    parseFloat(m.successRate) >= 30 ? 'Average' : 'Needs Focus'
+                                }</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('monthlyTable').innerHTML = html;
+        }
+
+        // Render weekly table
+        function renderWeeklyTable() {
+            const html = `
+                <h3>Weekly Performance Guidelines</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Weekly Target</th>
+                            <th>Current Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Interviews Scheduled</strong></td>
+                            <td>5 per week</td>
+                            <td><span class="status-badge good">On Track</span></td>
+                            <td>Average 3.7/week achieved YTD</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Successful Conversions</strong></td>
+                            <td>2-3 per week</td>
+                            <td><span class="status-badge excellent">Exceeding</span></td>
+                            <td>46% success rate maintained</td>
+                        </tr>
+                        <tr>
+                            <td><strong>No-Show Rate</strong></td>
+                            <td>&lt; 20%</td>
+                            <td><span class="status-badge excellent">✓ Meeting</span></td>
+                            <td>16.7% - Below target threshold</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Response Time</strong></td>
+                            <td>&lt; 24 hours</td>
+                            <td><span class="status-badge good">Good</span></td>
+                            <td>Quick candidate engagement</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Quality Screening</strong></td>
+                            <td>90% qualified</td>
+                            <td><span class="status-badge excellent">✓ Strong</span></td>
+                            <td>High conversion to documents</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('weeklyTable').innerHTML = html;
+        }
+
+        // Render charts
+        function renderCharts(monthlyData, recruiters) {
+            const chartsHtml = `
+                <div class="chart-card">
+                    <h3>Monthly Interview Trends</h3>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Recruiter Performance Comparison</h3>
+                    <div class="chart-container">
+                        <canvas id="recruiterChart"></canvas>
+                    </div>
+                </div>
+            `;
+            document.getElementById('chartsGrid').innerHTML = chartsHtml;
+
+            // Monthly trend chart
+            new Chart(document.getElementById('monthlyChart'), {
+                type: 'line',
+                data: {
+                    labels: monthlyData.map(m => m.month),
+                    datasets: [
+                        {
+                            label: 'Interviews Scheduled',
+                            data: monthlyData.map(m => m.interviews),
+                            borderColor: solvoColors.primary,
+                            backgroundColor: 'rgba(240, 159, 84, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: solvoColors.primary,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Successful Outcomes',
+                            data: monthlyData.map(m => m.success),
+                            borderColor: solvoColors.success,
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: solvoColors.success,
+                            borderWidth: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: { size: 13, family: 'Inter' },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6' },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+
+            // Recruiter comparison chart
+            new Chart(document.getElementById('recruiterChart'), {
+                type: 'bar',
+                data: {
+                    labels: recruiters.map(r => r.name.split(' ')[0]),
+                    datasets: [
+                        {
+                            label: 'Interviews Scheduled',
+                            data: recruiters.map(r => r.interviews),
+                            backgroundColor: 'rgba(240, 159, 84, 0.8)',
+                            borderRadius: 8,
+                            borderWidth: 0
+                        },
+                        {
+                            label: 'Successful Hires',
+                            data: recruiters.map(r => r.hires),
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                            borderRadius: 8,
+                            borderWidth: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: { size: 13, family: 'Inter' },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6' },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Main render function
+        function renderDashboard() {
+            const hiring = dashboardData.hiring || defaultData.hiring;
+            const recruiters = dashboardData.recruiters || defaultData.recruiters;
+            const monthlyData = dashboardData.monthlyData || defaultData.monthlyData;
+
+            renderYTDMetrics(hiring);
+            renderRecruiterCards(recruiters);
+            renderMonthlyKPIs(monthlyData);
+            renderMonthlyTable(monthlyData);
+            renderCharts(monthlyData, recruiters);
+            renderWeeklyTable();
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDashboard();
+        });
+    </script>
+</body>
+</html>
