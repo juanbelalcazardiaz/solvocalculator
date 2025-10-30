@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recruiter Performance Dashboard - YTD 2025</title>
+    <title>Recruiter Performance Dashboard - YTD 2025 | Solvo Global</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -14,8 +14,12 @@
         }
 
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #3b82f6;
+            /* Solvo Global Brand Colors */
+            --solvo-orange: #F09F54;
+            --solvo-orange-light: #F7C08A;
+            --solvo-orange-dark: #E88A3A;
+            --primary-color: #F09F54;
+            --secondary-color: #E88A3A;
             --success-color: #10b981;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
@@ -35,10 +39,28 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            background: linear-gradient(135deg, #F09F54 0%, #E88A3A 100%);
             color: white;
             padding: 2rem 2rem 1.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(240, 159, 84, 0.3);
+            position: relative;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .brand-logo {
+            background: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--solvo-orange);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .header h1 {
@@ -52,12 +74,20 @@
             font-size: 1.1rem;
         }
 
+        .header-footer {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
         .upload-section {
             background: white;
             margin: 2rem;
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--solvo-orange);
         }
 
         .upload-section h2 {
@@ -94,11 +124,11 @@
         }
 
         .file-upload-item input[type="file"]:hover {
-            border-color: var(--primary-color);
+            border-color: var(--solvo-orange);
         }
 
         .btn {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--purple-color) 100%);
+            background: linear-gradient(135deg, var(--solvo-orange) 0%, var(--solvo-orange-dark) 100%);
             color: white;
             padding: 0.75rem 1.5rem;
             border: none;
@@ -108,11 +138,12 @@
             font-size: 1rem;
             transition: all 0.3s;
             margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(240, 159, 84, 0.3);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 4px 12px rgba(240, 159, 84, 0.5);
         }
 
         .dashboard {
@@ -155,7 +186,7 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: linear-gradient(90deg, var(--primary-color), var(--purple-color));
+            background: linear-gradient(90deg, var(--solvo-orange), var(--solvo-orange-dark));
         }
 
         .metric-card.success::before {
@@ -172,7 +203,7 @@
 
         .metric-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 16px rgba(240, 159, 84, 0.2);
         }
 
         .metric-label {
@@ -214,8 +245,8 @@
         }
 
         .benchmark-indicator.good {
-            background: #dbeafe;
-            color: #1e40af;
+            background: #FEF3E2;
+            color: #92400e;
         }
 
         .benchmark-indicator.needs-improvement {
@@ -250,13 +281,14 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--purple-color));
+            background: linear-gradient(135deg, var(--solvo-orange), var(--solvo-orange-dark));
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
             font-weight: 700;
             color: white;
+            box-shadow: 0 2px 8px rgba(240, 159, 84, 0.3);
         }
 
         .recruiter-info h3 {
@@ -328,12 +360,14 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
+            border-left: 4px solid var(--solvo-orange);
         }
 
         .kpi-comparison h3 {
             font-size: 1.25rem;
             margin-bottom: 1.5rem;
             font-weight: 600;
+            color: var(--solvo-orange-dark);
         }
 
         .kpi-row {
@@ -364,7 +398,7 @@
 
         .kpi-bar {
             height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--purple-color));
+            background: linear-gradient(90deg, var(--solvo-orange), var(--solvo-orange-dark));
             border-radius: 12px;
             transition: width 0.5s ease;
         }
@@ -404,14 +438,14 @@
         }
 
         thead {
-            background: var(--bg-color);
+            background: #FEF3E2;
         }
 
         th {
             text-align: left;
             padding: 0.75rem;
             font-weight: 600;
-            color: var(--text-secondary);
+            color: var(--solvo-orange-dark);
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.05em;
@@ -423,7 +457,7 @@
         }
 
         tr:hover {
-            background: var(--bg-color);
+            background: #FEF3E2;
         }
 
         .status-badge {
@@ -440,8 +474,8 @@
         }
 
         .status-badge.good {
-            background: #dbeafe;
-            color: #1e40af;
+            background: #FEF3E2;
+            color: #92400e;
         }
 
         .status-badge.average {
@@ -466,7 +500,7 @@
             padding: 1.25rem;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--primary-color);
+            border-left: 4px solid var(--solvo-orange);
         }
 
         .kpi-target-header {
@@ -492,11 +526,31 @@
         .kpi-target-value {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--text-primary);
+            color: var(--solvo-orange-dark);
             margin-bottom: 0.5rem;
         }
 
         .kpi-target-comparison {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            margin-top: 2rem;
+            border-top: 4px solid var(--solvo-orange);
+        }
+
+        .footer-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--solvo-orange);
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-text {
             font-size: 0.875rem;
             color: var(--text-secondary);
         }
@@ -539,8 +593,15 @@
 </head>
 <body>
     <div class="header">
+        <div class="header-brand">
+            <div class="brand-logo">SOLVO</div>
+            <div>
+                <div style="font-size: 0.875rem; opacity: 0.9; font-weight: 500;">Powered by</div>
+            </div>
+        </div>
         <h1>🎯 Recruiter Performance Dashboard</h1>
-        <p>Year to Date 2025 - Showcasing Recruitment Excellence & Impact | Synergy HomeCare</p>
+        <p>Year to Date 2025 - Showcasing Recruitment Excellence & Impact</p>
+        <div class="header-footer">Synergy HomeCare | Operations Managed by Solvo Global</div>
     </div>
 
     <div class="upload-section">
@@ -594,6 +655,12 @@
         <div class="stats-table-container" id="weeklyStats"></div>
     </div>
 
+    <div class="footer">
+        <div class="footer-brand">SOLVO GLOBAL</div>
+        <div class="footer-text">Bringing You a World of Talent | Your Remote Workforce and Talent Solution</div>
+        <div class="footer-text" style="margin-top: 0.5rem;">© 2025 Solvo Global. All rights reserved.</div>
+    </div>
+
     <script>
         // Data storage
         let dashboardData = {
@@ -601,6 +668,16 @@
             status: null,
             job: null,
             interviews: null
+        };
+
+        // Solvo Global brand colors for charts
+        const solvoColors = {
+            primary: '#F09F54',
+            primaryLight: '#F7C08A',
+            primaryDark: '#E88A3A',
+            success: '#10b981',
+            info: '#3b82f6',
+            warning: '#f59e0b'
         };
 
         // Default data with monthly/weekly info
@@ -983,22 +1060,24 @@
                         {
                             label: 'Interviews Scheduled',
                             data: monthlyData.map(m => m.interviews),
-                            borderColor: 'rgba(99, 102, 241, 1)',
-                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderColor: solvoColors.primary,
+                            backgroundColor: 'rgba(240, 159, 84, 0.1)',
                             tension: 0.4,
                             fill: true,
                             pointRadius: 5,
-                            pointHoverRadius: 7
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: solvoColors.primary
                         },
                         {
                             label: 'Successful Outcomes',
                             data: monthlyData.map(m => m.success),
-                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderColor: solvoColors.success,
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
                             tension: 0.4,
                             fill: true,
                             pointRadius: 5,
-                            pointHoverRadius: 7
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: solvoColors.success
                         }
                     ]
                 },
@@ -1020,7 +1099,7 @@
                         {
                             label: 'Interviews',
                             data: recruiters.map(r => r.interviews),
-                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                            backgroundColor: 'rgba(240, 159, 84, 0.8)',
                             borderRadius: 6
                         },
                         {
@@ -1054,9 +1133,9 @@
                             hiringData.Hires
                         ],
                         backgroundColor: [
-                            'rgba(99, 102, 241, 0.9)',
-                            'rgba(139, 92, 246, 0.9)',
-                            'rgba(236, 72, 153, 0.9)',
+                            'rgba(240, 159, 84, 0.9)',
+                            'rgba(232, 138, 58, 0.9)',
+                            'rgba(247, 192, 138, 0.9)',
                             'rgba(16, 185, 129, 0.9)'
                         ],
                         borderRadius: 8
@@ -1083,9 +1162,9 @@
                     datasets: [{
                         data: topStatuses.map(s => s.Applicants),
                         backgroundColor: [
-                            'rgba(99, 102, 241, 0.9)',
-                            'rgba(139, 92, 246, 0.9)',
-                            'rgba(236, 72, 153, 0.9)',
+                            'rgba(240, 159, 84, 0.9)',
+                            'rgba(232, 138, 58, 0.9)',
+                            'rgba(247, 192, 138, 0.9)',
                             'rgba(16, 185, 129, 0.9)',
                             'rgba(245, 158, 11, 0.9)',
                             'rgba(59, 130, 246, 0.9)',
@@ -1110,7 +1189,6 @@
             const currentMonth = monthlyData[monthlyData.length - 1];
             const previousMonth = monthlyData[monthlyData.length - 2] || currentMonth;
             const avgInterviews = (monthlyData.reduce((sum, m) => sum + m.interviews, 0) / monthlyData.length).toFixed(1);
-            const avgSuccessRate = (monthlyData.reduce((sum, m) => sum + parseFloat(m.successRate), 0) / monthlyData.length).toFixed(1);
 
             const kpis = [
                 {
@@ -1204,9 +1282,9 @@
         // Render weekly KPIs
         function renderWeeklyKPIs(monthlyData) {
             const totalInterviews = monthlyData.reduce((sum, m) => sum + m.interviews, 0);
-            const weeksActive = 29; // Approximate weeks from January to October
+            const weeksActive = 29;
             const avgWeekly = (totalInterviews / weeksActive).toFixed(1);
-            const peakWeek = 9; // From analysis
+            const peakWeek = 9;
 
             const kpis = [
                 {
